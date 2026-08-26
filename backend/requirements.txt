@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+sqlalchemy
+pymysql
+cryptography
+neo4j
+pinecone-client
+groq
+langgraph
+pydantic
+google-generativeai
+langchain-google-genai
+langchain-community
+langchain-pinecone

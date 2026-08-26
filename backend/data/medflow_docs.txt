@@ -1,0 +1,35 @@
+# MedFlow Clinic Platform Documentation
+
+## Booking Appointments
+Patients can book appointments easily online without needing to create an account or log in. 
+To book an appointment, navigate to the 'Book Appointment' section on the homepage, select a specialist from the dropdown menu, choose a preferred date and time, and submit your personal details.
+Appointments are marked as 'Pending' immediately after booking.
+
+## Approval Workflow
+Once an appointment is requested, it enters the Doctor Dashboard.
+The specific doctor assigned to the appointment will review the request and can either 'Approve' or 'Reject' it.
+If the doctor clicks 'Approve', an automated webhook is triggered to the n8n automation engine.
+The n8n automation engine integrates with Twilio to instantly send an SMS confirmation to the patient's mobile phone number.
+
+## Available Specialties
+MedFlow Clinic currently offers specialists in the following domains:
+1. Cardiology (Advanced heart care and cardiovascular surgery)
+2. Neurology (Expert diagnosis and treatment of brain and nervous system disorders)
+3. Pediatrics (Compassionate care for infants, children, and adolescents)
+4. General Surgery (Comprehensive surgical interventions)
+5. Lab Diagnostics (State-of-the-art testing for rapid, accurate medical results)
+
+## Doctor Portal & Dashboard
+The Doctor Portal is highly secure and requires a Firebase-authenticated login.
+Doctors must register with their Full Name, Degree (e.g., MBBS, MD), and Specialty.
+Inside the dashboard, doctors can view their personalized schedule. They will only see appointments assigned to their specific doctor ID.
+The dashboard features an AI-powered "Synthesize Clinical Data" engine.
+
+## GraphRAG Clinical Synthesis Engine
+The MedFlow system uses an advanced Graph Retrieval-Augmented Generation (GraphRAG) architecture powered by Neo4j.
+Instead of standard vector embeddings, patient medical records (Conditions, Medications, Allergies) are mapped as interconnected nodes in a graph database.
+When a doctor requests a synthesis, AI agents execute Cypher queries to traverse the graph.
+A specialized Safety Agent analyzes the graph for `CONFLICTS_WITH` relationships to instantly flag dangerous drug interactions (e.g., if a patient takes Ibuprofen while diagnosed with Hypertension).
+
+## General Policy
+If patients experience a medical emergency, they should call emergency services immediately. MedFlow AI is a scheduling and clinical synthesis tool, not an emergency response system.
