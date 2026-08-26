@@ -96,3 +96,23 @@ class PrescriptionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class BillingBase(BaseModel):
+    amount: float
+    status: str = "Pending"
+    icd10_codes: Optional[str] = None
+    cpt_codes: Optional[str] = None
+    stripe_payment_link: Optional[str] = None
+
+class BillingCreate(BillingBase):
+    appointment_id: int
+    patient_id: int
+
+class BillingResponse(BillingBase):
+    billing_id: int
+    appointment_id: int
+    patient_id: int
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True

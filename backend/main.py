@@ -268,7 +268,107 @@ def doctor_chat_endpoint(request: DoctorChatRequest):
         os.environ["GOOGLE_API_KEY"] = gemini_api_key
         return handle_doctor_chat(request.message)
     except Exception as e:
-        return {"type": "text", "message": f"An error occurred: {str(e)}"}# @app.post("/api/appointments/{appointment_id}/approve")
-# @app.get("/api/knowledge/search")
+        return {"type": "text", "message": f"An error occurred: {str(e)}"}
+
+# --- BILLING ENDPOINTS (SAFEPAY PAKISTAN) ---
+
+@app.post("/api/billing", response_model=schemas.BillingResponse)
+def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)):
+    import os
+    import requests
+
+    safepay_public = os.environ.get("SAFEPAY_PUBLIC_KEY")
+    checkout_url = ""
+
+    # Generate Real Safepay Tracker
+    if safepay_public:
+        try:
+            res = requests.post(
+                "https://sandbox.api.getsafepay.com/order/v1/init",
+                json={
+                    "client": safepay_public,
+                    "amount": float(billing.amount),
+                    "currency": "PKR",
+                    "environment": "sandbox"
+                },
+                timeout=5
+            )
+            if res.status_code == 200:
+                data = res.json()
+                token = data.get("data", {}).get("token")
+                if token:
+                    checkout_url = f"https://sandbox.api.getsafepay.com/checkout/pay?env=sandbox&token={token}&source=custom"
+        except Exception as e:
+            print("Safepay API error:", e)
+
+    # Fallback if API fails or key is missing
+    if not checkout_url:
+        checkout_url = f"https://sandbox.api.getsafepay.com/checkout/pay?amount={billing.amount}&currency=PKR&env=sandbox"
+    
+    db_bill = models.BillingRecord(
+        appointment_id=billing.appointment_id,
+        patient_id=billing.patient_id,
+        amount=billing.amount,
+        status="Pending",
+        icd10_codes=billing.icd10_codes,
+        cpt_codes=billing.cpt_codes,
+        stripe_payment_link=checkout_url # Now storing the real Safepay Tracker link
+    )
+    db.add(db_bill)
+    db.commit()
+    db.refresh(db_bill)
+
+    # --- TRIGGER N8N AUTOMATED INVOICE EMAIL ---
+    try:
+        patient = db.query(models.Patient).filter(models.Patient.patient_id == billing.patient_id).first()
+        if patient and getattr(patient, "email", None):
+            webhook_url = "http://host.docker.internal:5678/webhook/billing-issued"
+            payload = {
+                "patient_name": patient.name,
+                "patient_email": patient.email,
+                "patient_phone": patient.contact_info,
+                "amount": billing.amount,
+                "payment_link": checkout_url,
+                "billing_id": db_bill.billing_id
+            }
+            requests.post(webhook_url, json=payload, timeout=3)
+    except Exception as e:
+        print(f"Failed to trigger billing webhook: {e}")
+
+    return db_bill
+
+@app.get("/api/billing/stats")
+def get_billing_stats(db: Session = Depends(get_db)):
+    from sqlalchemy import func
+    
+    total_revenue = db.query(func.sum(models.BillingRecord.amount)).filter(models.BillingRecord.status == "Paid").scalar() or 0.0
+    pending_revenue = db.query(func.sum(models.BillingRecord.amount)).filter(models.BillingRecord.status == "Pending").scalar() or 0.0
+    
+    total_invoices = db.query(models.BillingRecord).count()
+    paid_invoices = db.query(models.BillingRecord).filter(models.BillingRecord.status == "Paid").count()
+    
+    # Get 10 most recent invoices for the table
+    recent_invoices = db.query(models.BillingRecord).order_by(models.BillingRecord.timestamp.desc()).limit(10).all()
+    
+    # Format the recent invoices to include patient names
+    formatted_invoices = []
+    for inv in recent_invoices:
+        patient = db.query(models.Patient).filter(models.Patient.patient_id == inv.patient_id).first()
+        formatted_invoices.append({
+            "id": inv.billing_id,
+            "patient_name": patient.name if patient else "Unknown",
+            "amount": inv.amount,
+            "status": inv.status,
+            "date": inv.timestamp.strftime("%Y-%m-%d"),
+            "stripe_payment_link": inv.stripe_payment_link
+        })
+        
+    return {
+        "revenue_collected": total_revenue,
+        "revenue_pending": pending_revenue,
+        "total_invoices": total_invoices,
+        "paid_invoices": paid_invoices,
+        "recent": formatted_invoices
+    }
 
 

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Search, Loader2, FileText, AlertCircle, TrendingUp, Activity, User, HeartPulse, Clock, Pill } from "lucide-react";
+import { Search, Loader2, FileText, AlertCircle, TrendingUp, Activity, User, HeartPulse, Clock, Pill, DollarSign } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
 export default function Dashboard() {
@@ -225,13 +225,43 @@ export default function Dashboard() {
                   </h3>
                 </div>
                 {(!loading && !error && summary) && (
-                  <button 
-                    onClick={() => setShowPrescribeModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-colors shadow-sm"
-                  >
-                    <Pill className="w-4 h-4" />
-                    Write Prescription
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={async () => {
+                        const amount = prompt("Enter bill amount (PKR) for this consultation:");
+                        if (amount && !isNaN(Number(amount))) {
+                          try {
+                            const res = await fetch("http://localhost:8000/api/billing", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                patient_id: parseInt(patientId),
+                                appointment_id: parseInt(patientId), // Mocking appointment ID for now
+                                amount: parseFloat(amount),
+                                icd10_codes: "E03.9", // Dummy AI suggested code
+                                cpt_codes: "99214"
+                              })
+                            });
+                            if (res.ok) alert("Bill generated successfully and sent to Safepay!");
+                            else alert("Failed to generate bill");
+                          } catch (err) {
+                            alert("Network error generating bill");
+                          }
+                        }
+                      }}
+                      className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors shadow-sm"
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      Generate Bill
+                    </button>
+                    <button 
+                      onClick={() => setShowPrescribeModal(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm transition-colors shadow-sm"
+                    >
+                      <Pill className="w-4 h-4" />
+                      Write Prescription
+                    </button>
+                  </div>
                 )}
               </div>
               

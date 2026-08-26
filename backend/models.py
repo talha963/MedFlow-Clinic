@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Float
 from database import Base
 import datetime
 
@@ -52,4 +52,16 @@ class Prescription(Base):
     doctor_id = Column(Integer, ForeignKey("users.user_id"))
     medication_details = Column(Text)
     instructions = Column(Text)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+
+class BillingRecord(Base):
+    __tablename__ = "billing_records"
+    billing_id = Column(Integer, primary_key=True, index=True)
+    appointment_id = Column(Integer, ForeignKey("appointments.appointment_id"))
+    patient_id = Column(Integer, ForeignKey("patients.patient_id"))
+    amount = Column(Float, default=0.0)
+    status = Column(String(50), default="Pending") # Pending, Paid, Overdue
+    icd10_codes = Column(String(255), nullable=True) # e.g. "E03.9, J45.909"
+    cpt_codes = Column(String(255), nullable=True) # e.g. "99214"
+    stripe_payment_link = Column(String(500), nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
