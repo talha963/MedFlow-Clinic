@@ -1,85 +1,81 @@
 # 🏥 MedFlow Clinic AI
 
-![MedFlow Clinic Banner](https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2000&auto=format&fit=crop)
+> **A next-generation, AI-powered healthcare platform seamlessly connecting patients, doctors, and medical data.**
 
-**MedFlow Clinic** is a next-generation, AI-powered healthcare platform designed to seamlessly connect patients, doctors, and medical data. By combining modern web technologies (Next.js) with powerful AI and automated workflows (n8n), MedFlow Clinic transforms the traditional patient portal into a smart, efficient, and deeply integrated experience.
+MedFlow Clinic transforms the traditional patient portal into a smart, efficient, and deeply integrated experience. By combining modern web technologies with powerful AI and automated workflows, it provides a seamless healthcare journey from initial booking to digital prescriptions.
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
 ### 🧑‍⚕️ For Patients
-- **Modern Booking Portal**: A clean, intuitive interface to book appointments, select preferred time slots, and submit medical symptoms securely.
-- **Instant Automated Confirmations**: Patients receive beautiful HTML confirmation emails and SMS notifications the second a doctor approves their appointment.
-- **Digital Prescriptions**: Official, elegantly formatted medical prescriptions are automatically sent directly to the patient's inbox upon issuance.
+* **Modern Booking Portal**: Clean, intuitive interface to book appointments, select time slots, and securely submit symptoms.
+* **Automated Confirmations**: Instant HTML emails and SMS notifications the second a doctor approves an appointment.
+* **Digital Prescriptions**: Official, elegantly formatted medical prescriptions sent directly to the inbox upon issuance.
 
 ### 👨‍⚕️ For Doctors
-- **AI Clinical Synthesis**: Powered by GraphRAG and Gemini AI, the doctor dashboard can instantly query patient histories and synthesize comprehensive clinical reports.
-- **One-Click Prescriptions**: Write and issue prescriptions directly from the AI analysis screen without breaking focus.
-- **Real-Time Appointment Management**: Approve or reject appointments with instant automated patient communication in the background.
+* **AI Clinical Synthesis**: Powered by GraphRAG and Gemini AI, instantly query patient histories and synthesize comprehensive clinical reports.
+* **One-Click Prescriptions**: Write and issue prescriptions directly from the AI analysis screen without breaking focus.
+* **Real-Time Management**: Approve or reject appointments with automated background patient communication.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
-- **Frontend**: Next.js 14, React, Tailwind CSS, Lucide Icons
-- **Backend**: Python, FastAPI, SQLAlchemy
-- **Database**: MySQL (Relational Data), Neo4j (Graph Database for AI)
-- **AI & RAG**: LangChain, Google Gemini API
-- **Workflow Automation**: n8n (Webhook triggers, Twilio SMS, Gmail SMTP)
-- **Authentication**: Firebase Auth
-- **Infrastructure**: Docker & Docker Compose
+| Category | Technologies Used |
+| :--- | :--- |
+| **Frontend** | Next.js 14, React, Tailwind CSS, Lucide Icons |
+| **Backend** | Python, FastAPI, SQLAlchemy |
+| **Databases**| MySQL (Relational Data), Neo4j (Graph Database for AI) |
+| **AI & RAG** | LangChain, Google Gemini API |
+| **Automation**| n8n (Webhooks, Twilio SMS, Gmail SMTP) |
+| **Auth & Infra**| Firebase Auth, Docker, Docker Compose |
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start Guide
 
-### Prerequisites
-- [Docker & Docker Compose](https://www.docker.com/)
-- [Node.js 20+](https://nodejs.org/)
-- Google Gemini API Key
-- n8n instance (Local or Cloud)
+### 1. Prerequisites
+* **Docker & Docker Compose** installed on your machine.
+* **Node.js 20+** (for local frontend development).
+* **API Keys**: Google Gemini API Key.
+* **n8n instance** (Local or Cloud) for automation workflows.
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/talha963/MedFlow-Clinic.git
-cd MedFlow-Clinic
-```
-
-### 2. Configure Environment Variables
-Create a `.env` file in the root directory:
+### 2. Environment Setup
+Clone the repository and create a `.env` file in the root directory:
 ```env
 GEMINI_API_KEY=your_gemini_api_key
 GROQ_API_KEY=your_groq_api_key
 ```
 
-### 3. Start the Application
+### 3. Launch the Platform
 Run the entire stack using Docker Compose:
 ```bash
 docker-compose up -d --build
 ```
 
-### 4. Access the Portals
-- **Patient Booking Portal**: [http://localhost:3000](http://localhost:3000)
-- **Doctor Dashboard**: [http://localhost:3000/doctor/login](http://localhost:3000/doctor/login)
-- **Backend API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+### 4. Access Points
+* **Patient Portal**: `http://localhost:3000`
+* **Doctor Dashboard**: `http://localhost:3000/doctor/login`
+* **Backend API Docs**: `http://localhost:8000/docs`
 
 ---
 
-## ⚙️ Automated Workflows (n8n)
+## ⚙️ Workflow Automation (n8n)
 
-MedFlow heavily utilizes n8n for background automation. The JSON workflow templates are available in the `/workflows` directory (or created dynamically).
-
-1. **Appointment Approval Flow**: `Webhook → Format Data → Twilio SMS / Gmail`
-2. **Prescription Issuance Flow**: `Webhook → Generate HTML Report → Gmail SMTP`
-
-Import these into your n8n instance and activate them to enable automatic patient communications.
+MedFlow relies heavily on n8n for background automation. The system automatically triggers webhooks for the following events:
+1. **Appointment Approval**: Triggers when a doctor confirms a booking. Extracts patient data and routes it to Twilio (SMS) and Gmail (Email).
+2. **Prescription Issuance**: Triggers when a doctor writes a prescription. Generates and emails a beautiful HTML digital prescription.
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing & Future Roadmap
 
-This project is actively maintained and expanding with new AI features. Contributions, issues, and feature requests are welcome!
+This project is actively maintained and continuously expanding. Upcoming features include:
+* *Enhanced AI chat interfaces for real-time patient triage.*
+* *Advanced analytics dashboard for clinic administration.*
+
+Contributions, issues, and feature requests are always welcome!
 
 ---
 *Built with ❤️ for the future of healthcare.*
