@@ -7,6 +7,7 @@ import { auth } from "@/lib/firebase";
 export default function Dashboard() {
   const [patientId, setPatientId] = useState("");
   const [summary, setSummary] = useState("");
+  const [timelineData, setTimelineData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -18,6 +19,54 @@ export default function Dashboard() {
   const [showPrescribeModal, setShowPrescribeModal] = useState(false);
   const [prescriptionForm, setPrescriptionForm] = useState({ medication: "", instructions: "" });
   const [prescribing, setPrescribing] = useState(false);
+
+  const [showBillingModal, setShowBillingModal] = useState(false);
+  const [billingForm, setBillingForm] = useState({ amount: "", icd10: "", cpt: "" });
+  const [autoCoding, setAutoCoding] = useState(false);
+  const [billingSaving, setBillingSaving] = useState(false);
+
+  const handleAutoCode = async () => {
+    if (!patientId) return;
+    setAutoCoding(true);
+    try {
+      const res = await fetch(`http://localhost:8000/api/patients/${patientId}/suggest-codes`);
+      if (res.ok) {
+        const data = await res.json();
+        setBillingForm(prev => ({ ...prev, icd10: data.icd10, cpt: data.cpt }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setAutoCoding(false);
+  };
+
+  const submitBilling = async () => {
+    if (!patientId || !billingForm.amount) return alert("Missing required fields");
+    setBillingSaving(true);
+    try {
+      const res = await fetch("http://localhost:8000/api/billing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: parseInt(patientId),
+          appointment_id: parseInt(patientId),
+          amount: parseFloat(billingForm.amount),
+          icd10_codes: billingForm.icd10,
+          cpt_codes: billingForm.cpt
+        })
+      });
+      if (res.ok) {
+        alert("Bill generated successfully and sent!");
+        setShowBillingModal(false);
+        setBillingForm({ amount: "", icd10: "", cpt: "" });
+      } else {
+        alert("Failed to generate bill");
+      }
+    } catch (err) {
+      alert("Network error generating bill");
+    }
+    setBillingSaving(false);
+  };
 
   const submitPrescription = async () => {
     if (!patientId) return alert("No patient selected");
@@ -77,6 +126,7 @@ export default function Dashboard() {
     setLoading(true);
     setError(false);
     setSummary("");
+    setTimelineData([]);
     try {
       const res = await fetch(`http://localhost:8000/api/patients/${targetId}/summary`);
       if (res.ok) {
@@ -85,6 +135,12 @@ export default function Dashboard() {
       } else {
         setSummary("Error fetching summary. Ensure the patient exists in the database.");
         setError(true);
+      }
+
+      const timelineRes = await fetch(`http://localhost:8000/api/patients/${targetId}/timeline`);
+      if (timelineRes.ok) {
+        const tData = await timelineRes.json();
+        setTimelineData(tData);
       }
     } catch (err) {
       setSummary("Failed to connect to the MedFlow Clinical API.");
@@ -227,28 +283,7 @@ export default function Dashboard() {
                 {(!loading && !error && summary) && (
                   <div className="flex gap-2">
                     <button 
-                      onClick={async () => {
-                        const amount = prompt("Enter bill amount (PKR) for this consultation:");
-                        if (amount && !isNaN(Number(amount))) {
-                          try {
-                            const res = await fetch("http://localhost:8000/api/billing", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({
-                                patient_id: parseInt(patientId),
-                                appointment_id: parseInt(patientId), // Mocking appointment ID for now
-                                amount: parseFloat(amount),
-                                icd10_codes: "E03.9", // Dummy AI suggested code
-                                cpt_codes: "99214"
-                              })
-                            });
-                            if (res.ok) alert("Bill generated successfully and sent to Safepay!");
-                            else alert("Failed to generate bill");
-                          } catch (err) {
-                            alert("Network error generating bill");
-                          }
-                        }
-                      }}
+                      onClick={() => setShowBillingModal(true)}
                       className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-sm transition-colors shadow-sm"
                     >
                       <DollarSign className="w-4 h-4" />
@@ -276,6 +311,48 @@ export default function Dashboard() {
                     <ReactMarkdown>{summary}</ReactMarkdown>
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {timelineData.length > 0 && (
+            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-700 p-8 animate-in slide-in-from-bottom-4 duration-500 delay-100 fill-mode-both">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-xl">
+                  <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Patient History Timeline</h3>
+              </div>
+              
+              <div className="relative border-l-2 border-slate-100 dark:border-slate-700 ml-4 space-y-8 pb-4">
+                {timelineData.map((item, idx) => (
+                  <div key={idx} className="relative pl-8">
+                    <div className="absolute w-4 h-4 bg-blue-600 rounded-full border-4 border-white dark:border-slate-800 -left-[9px] top-1"></div>
+                    <div className="bg-slate-50 dark:bg-slate-900/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 hover:shadow-md transition-shadow">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <h4 className="font-bold text-slate-800 dark:text-slate-200">{item.title}</h4>
+                        <span className="text-xs font-bold text-blue-600 bg-blue-100 dark:bg-blue-900/50 dark:text-blue-300 px-3 py-1 rounded-full">
+                          {new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{item.description}</p>
+                      
+                      {item.bill_amount && (
+                        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-200 dark:border-slate-700/50">
+                          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Billing Status</span>
+                          <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Rs. {item.bill_amount}</span>
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${
+                            item.bill_status === 'Paid' 
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' 
+                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                          }`}>
+                            {item.bill_status || 'Pending'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -327,6 +404,91 @@ export default function Dashboard() {
                   className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
                 >
                   {prescribing ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save & Send Prescription"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Billing Modal */}
+      {showBillingModal && (
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-emerald-50/50 dark:bg-emerald-900/20">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl flex items-center justify-center">
+                  <DollarSign className="text-emerald-600 dark:text-emerald-400 w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">Generate Medical Bill</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Patient ID: {patientId}</p>
+                </div>
+              </div>
+              <button onClick={() => setShowBillingModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              
+              <div>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">Amount (PKR) *</label>
+                <input 
+                  type="number"
+                  placeholder="e.g. 1500"
+                  value={billingForm.amount}
+                  onChange={e => setBillingForm({...billingForm, amount: e.target.value})}
+                  className="w-full bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-800 dark:text-slate-200 text-lg font-bold"
+                />
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Medical Coding</h4>
+                  <button 
+                    onClick={handleAutoCode}
+                    disabled={autoCoding}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-200 text-blue-700 dark:text-blue-400 rounded-lg text-xs font-bold transition-colors"
+                  >
+                    {autoCoding ? <Loader2 className="w-3 h-3 animate-spin" /> : <Activity className="w-3 h-3" />}
+                    ✨ Auto-Code with AI
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">ICD-10 Code</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. J01.90"
+                      value={billingForm.icd10}
+                      onChange={e => setBillingForm({...billingForm, icd10: e.target.value})}
+                      className="w-full bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-800 dark:text-slate-200 uppercase font-mono text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">CPT Code</label>
+                    <input 
+                      type="text"
+                      placeholder="e.g. 99213"
+                      value={billingForm.cpt}
+                      onChange={e => setBillingForm({...billingForm, cpt: e.target.value})}
+                      className="w-full bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-800 dark:text-slate-200 font-mono text-sm"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500 mt-3 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> Verify AI-suggested codes before submission.</p>
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setShowBillingModal(false)} className="px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition-colors">Cancel</button>
+                <button 
+                  onClick={submitBilling} 
+                  disabled={billingSaving || !billingForm.amount}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-lg shadow-emerald-500/20"
+                >
+                  {billingSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <DollarSign className="w-5 h-5" />}
+                  Submit Bill & Email Patient
                 </button>
               </div>
             </div>

@@ -17,7 +17,9 @@ MedFlow Clinic transforms the traditional patient portal into a smart, efficient
 * **Online Billing**: Securely pay clinic bills online via automated Safepay checkout links.
 
 ### 👨‍⚕️ For Doctors
-* **AI Clinical Synthesis**: Powered by GraphRAG and Gemini AI, instantly query patient histories and synthesize comprehensive clinical reports.
+* **AI Clinical Synthesis**: Powered by GraphRAG and Gemini 3.5 AI, instantly query patient histories and synthesize comprehensive clinical reports.
+* **Patient History Timeline**: Beautiful, chronological visual roadmap of every past visit, prescription, and billing status directly on the dashboard.
+* **AI Medical Auto-Coding**: Gemini 3.5 Flash automatically reads symptoms and predicts exact ICD-10 and CPT billing codes for frictionless insurance processing.
 * **One-Click Prescriptions**: Write and issue prescriptions directly from the AI analysis screen.
 * **Revenue Cycle Management**: Generate bills and track financial performance in a beautiful, real-time dashboard.
 

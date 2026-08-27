@@ -202,6 +202,39 @@ def get_user_profile(email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return {"name": user.name, "role": user.role, "specialty": user.specialty, "user_id": user.user_id}
 
+@app.get("/api/patients/{patient_id}/timeline")
+def get_patient_timeline(patient_id: int, db: Session = Depends(get_db)):
+    patient = db.query(models.Patient).filter(models.Patient.patient_id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+        
+    appointments = db.query(models.Appointment).filter(models.Appointment.patient_id == patient_id).order_by(models.Appointment.date.desc()).all()
+    
+    timeline = []
+    for appt in appointments:
+        doctor = db.query(models.User).filter(models.User.user_id == appt.doctor_id).first()
+        doc_name = doctor.name if doctor else "Unknown Doctor"
+        
+        bill = db.query(models.BillingRecord).filter(models.BillingRecord.appointment_id == appt.appointment_id).first()
+        record = db.query(models.MedicalRecord).filter(models.MedicalRecord.appointment_id == appt.appointment_id).first()
+        
+        symptoms = "Routine Checkup"
+        if record and record.symptoms:
+            symptoms = record.symptoms
+            
+        timeline.append({
+            "id": appt.appointment_id,
+            "date": appt.date,
+            "type": "Consultation",
+            "title": f"Visit with {doc_name}",
+            "description": symptoms,
+            "status": appt.status,
+            "bill_amount": bill.amount if bill else None,
+            "bill_status": bill.status if bill else None
+        })
+        
+    return timeline
+
 @app.get("/api/patients/{patient_id}/summary")
 def get_patient_summary(patient_id: int, db: Session = Depends(get_db)):
     # 1. Verify patient exists
@@ -271,6 +304,50 @@ def doctor_chat_endpoint(request: DoctorChatRequest):
         return {"type": "text", "message": f"An error occurred: {str(e)}"}
 
 # --- BILLING ENDPOINTS (SAFEPAY PAKISTAN) ---
+
+@app.get("/api/patients/{patient_id}/suggest-codes")
+def suggest_medical_codes(patient_id: int, db: Session = Depends(get_db)):
+    import json
+    import google.generativeai as genai
+    import os
+    
+    patient = db.query(models.Patient).filter(models.Patient.patient_id == patient_id).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found")
+        
+    appointment = db.query(models.Appointment).filter(models.Appointment.patient_id == patient_id).order_by(models.Appointment.date.desc()).first()
+    
+    medical_context = "General Consultation"
+    if appointment:
+        record = db.query(models.MedicalRecord).filter(models.MedicalRecord.appointment_id == appointment.appointment_id).first()
+        if record:
+            medical_context = json.dumps({"symptoms": record.symptoms, "medicines": record.medicines, "tests": record.tests})
+
+    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    if not gemini_api_key:
+        return {"icd10": "E03.9", "cpt": "99214"}
+
+    try:
+        genai.configure(api_key=gemini_api_key)
+        model = genai.GenerativeModel("gemini-3.5-flash")
+        
+        prompt = f"""
+        You are an expert medical billing coder. 
+        Based on the following patient medical record/symptoms:
+        {medical_context}
+        
+        Suggest exactly ONE primary ICD-10 diagnosis code and ONE CPT procedure code.
+        Respond ONLY with a valid JSON object in this exact format, with no markdown:
+        {{"icd10": "CODE", "cpt": "CODE"}}
+        """
+        
+        response = model.generate_content(prompt)
+        text = response.text.strip().replace("```json", "").replace("```", "")
+        return json.loads(text)
+    except Exception as e:
+        print("AI Coding Error:", e)
+        return {"icd10": "E03.9", "cpt": "99214"}
+
 
 @app.post("/api/billing", response_model=schemas.BillingResponse)
 def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)):
