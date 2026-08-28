@@ -9,7 +9,7 @@ export default function PatientPortal() {
   const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/doctors")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors`)
       .then(res => res.json())
       .then(data => {
         setAvailableDoctors(data);
@@ -22,7 +22,7 @@ export default function PatientPortal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const patientRes = await fetch("http://localhost:8000/api/patients", {
+    const patientRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/patients`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: formData.name, dob: formData.dob, contact_info: formData.phone, email: formData.email })
@@ -38,7 +38,7 @@ export default function PatientPortal() {
       tests: formData.tests,
       symptoms: formData.symptoms
     } : null;
-    await fetch("http://localhost:8000/api/appointments", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

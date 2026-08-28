@@ -29,7 +29,7 @@ export default function Dashboard() {
     if (!patientId) return;
     setAutoCoding(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/patients/${patientId}/suggest-codes`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/patients/${patientId}/suggest-codes`);
       if (res.ok) {
         const data = await res.json();
         setBillingForm(prev => ({ ...prev, icd10: data.icd10, cpt: data.cpt }));
@@ -44,7 +44,7 @@ export default function Dashboard() {
     if (!patientId || !billingForm.amount) return alert("Missing required fields");
     setBillingSaving(true);
     try {
-      const res = await fetch("http://localhost:8000/api/billing", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -73,7 +73,7 @@ export default function Dashboard() {
     setPrescribing(true);
     try {
       const email = auth.currentUser?.email || "";
-      const res = await fetch(`http://localhost:8000/api/prescriptions`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/prescriptions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -103,7 +103,7 @@ export default function Dashboard() {
     setChatLoading(true);
     setChatResponse(null);
     try {
-      const res = await fetch("http://localhost:8000/api/doctor/chat", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctor/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: chatQuery })
@@ -128,7 +128,7 @@ export default function Dashboard() {
     setSummary("");
     setTimelineData([]);
     try {
-      const res = await fetch(`http://localhost:8000/api/patients/${targetId}/summary`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/patients/${targetId}/summary`);
       if (res.ok) {
         const data = await res.json();
         setSummary(data.summary);
@@ -137,7 +137,7 @@ export default function Dashboard() {
         setError(true);
       }
 
-      const timelineRes = await fetch(`http://localhost:8000/api/patients/${targetId}/timeline`);
+      const timelineRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/patients/${targetId}/timeline`);
       if (timelineRes.ok) {
         const tData = await timelineRes.json();
         setTimelineData(tData);

@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDCgcN9KHLtJljAqGT0iyCwhRiBGLEarDE",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: "mediflow-ai-39cf6.firebaseapp.com",
   projectId: "mediflow-ai-39cf6",
   storageBucket: "mediflow-ai-39cf6.firebasestorage.app",

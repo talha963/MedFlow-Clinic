@@ -18,12 +18,12 @@ export default function AppointmentsPage() {
   useEffect(() => {
     const fetchAppointments = async (email: string) => {
       try {
-        const profileRes = await fetch(`http://localhost:8000/api/users/profile?email=${email}`);
+        const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile?email=${email}`);
         if (!profileRes.ok) return;
         const profileData = await profileRes.json();
         const docId = profileData.user_id;
 
-        const res = await fetch(`http://localhost:8000/api/appointments?doctor_id=${docId}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments?doctor_id=${docId}`);
         if (res.ok) {
           const data = await res.json();
           setAppointments(data);
@@ -44,7 +44,7 @@ export default function AppointmentsPage() {
 
   const fetchRecord = async (appointmentId: number) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/appointments/${appointmentId}/record`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/${appointmentId}/record`);
       if (res.ok) {
         const data = await res.json();
         setViewingRecord(data);
@@ -56,7 +56,7 @@ export default function AppointmentsPage() {
 
   const handleStatusUpdate = async (appointmentId: number, status: string, patientId: number) => {
     try {
-      await fetch(`http://localhost:8000/api/appointments/${appointmentId}/status`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/${appointmentId}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -77,7 +77,7 @@ export default function AppointmentsPage() {
     if (!writingPrescription) return;
     try {
       const email = auth.currentUser?.email || "";
-      const res = await fetch(`http://localhost:8000/api/prescriptions`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/prescriptions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -70,7 +70,7 @@ def ask_chatbot(user_message: str, chat_history: list) -> str:
     )
     
     # 3. Call LLM directly
-    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.3)
+    llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest", temperature=0.3)
     
     messages = [
         ("system", system_prompt),
@@ -78,17 +78,13 @@ def ask_chatbot(user_message: str, chat_history: list) -> str:
     ]
     
     response = llm.invoke(messages)
+    
     content = response.content
-    
-    if isinstance(content, str):
-        return content
-    elif isinstance(content, list) and len(content) > 0:
-        # Sometimes returns a list of blocks
-        first_block = content[0]
-        if isinstance(first_block, dict) and "text" in first_block:
-            return first_block["text"]
-        return str(first_block)
-    elif isinstance(content, dict) and "text" in content:
-        return content["text"]
-    
-    return str(content)
+    if isinstance(content, list) and len(content) > 0:
+        content = content[0].get("text", str(content)) if isinstance(content[0], dict) else str(content[0])
+    elif isinstance(content, dict):
+        content = content.get("text", str(content))
+    else:
+        content = str(content)
+        
+    return content

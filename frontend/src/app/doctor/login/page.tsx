@@ -34,7 +34,7 @@ export default function LandingPage() {
         await createUserWithEmailAndPassword(auth, email, password);
         
         // Sync with MySQL backend
-        await fetch("http://localhost:8000/api/doctors", {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

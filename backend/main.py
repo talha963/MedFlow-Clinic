@@ -16,7 +16,7 @@ app = FastAPI(title="MedFlow AI Backend API")
 # Add CORS Middleware to allow requests from the Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -118,7 +118,7 @@ def update_appointment_status(appointment_id: int, status_update: schemas.Appoin
     if status_update.status == "Confirmed":
         patient = db.query(models.Patient).filter(models.Patient.patient_id == db_appointment.patient_id).first()
         if patient:
-            webhook_url = "http://host.docker.internal:5678/webhook/appointment-approved"  # Windows native n8n
+            webhook_url = "http://n8n:5678/webhook/appointment-approved"
             payload = {
                 "patient_name": patient.name,
                 "patient_email": patient.email or "",
@@ -260,7 +260,7 @@ def get_patient_summary(patient_id: int, db: Session = Depends(get_db)):
     return {"patient_id": patient_id, "summary": result["summary"]}
 
 import os
-import google.generativeai as genai
+from google import genai
 from rag_chatbot import ask_chatbot
 
 @app.post("/api/chat")
@@ -308,7 +308,7 @@ def doctor_chat_endpoint(request: DoctorChatRequest):
 @app.get("/api/patients/{patient_id}/suggest-codes")
 def suggest_medical_codes(patient_id: int, db: Session = Depends(get_db)):
     import json
-    import google.generativeai as genai
+    # Removed deprecated import
     import os
     
     patient = db.query(models.Patient).filter(models.Patient.patient_id == patient_id).first()
@@ -328,8 +328,7 @@ def suggest_medical_codes(patient_id: int, db: Session = Depends(get_db)):
         return {"icd10": "E03.9", "cpt": "99214"}
 
     try:
-        genai.configure(api_key=gemini_api_key)
-        model = genai.GenerativeModel("gemini-3.5-flash")
+        client = genai.Client(api_key=gemini_api_key)
         
         prompt = f"""
         You are an expert medical billing coder. 
@@ -341,7 +340,11 @@ def suggest_medical_codes(patient_id: int, db: Session = Depends(get_db)):
         {{"icd10": "CODE", "cpt": "CODE"}}
         """
         
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-flash-lite-latest',
+            contents=prompt,
+        )
+        
         text = response.text.strip().replace("```json", "").replace("```", "")
         return json.loads(text)
     except Exception as e:
@@ -374,7 +377,7 @@ def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)
                 data = res.json()
                 token = data.get("data", {}).get("token")
                 if token:
-                    checkout_url = f"https://sandbox.api.getsafepay.com/checkout/pay?env=sandbox&token={token}&source=custom"
+                    checkout_url = f"https://sandbox.api.getsafepay.com/checkout/pay?env=sandbox&beacon={token}&source=custom"
         except Exception as e:
             print("Safepay API error:", e)
 
@@ -399,7 +402,7 @@ def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)
     try:
         patient = db.query(models.Patient).filter(models.Patient.patient_id == billing.patient_id).first()
         if patient and getattr(patient, "email", None):
-            webhook_url = "http://host.docker.internal:5678/webhook/billing-issued"
+            webhook_url = "http://n8n:5678/webhook/billing-issued"
             payload = {
                 "patient_name": patient.name,
                 "patient_email": patient.email,

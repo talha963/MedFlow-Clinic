@@ -48,10 +48,17 @@ def medical_agent_node(state: AgentState):
     # Use Gemini to generate guidelines based on symptoms and meds
     prompt = f"Patient {p_data.get('name')} is presenting with symptoms: {p_data.get('symptoms')}. They are currently taking: {p_data.get('meds')}. Provide 2-3 bullet points of standard medical guidelines or vitals to check for this presentation. Keep it highly concise, professional, and medical."
     
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+    llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest")
     try:
         response = llm.invoke(prompt)
-        guidelines = response.content
+        content = response.content
+        if isinstance(content, list) and len(content) > 0:
+            content = content[0].get("text", str(content)) if isinstance(content[0], dict) else str(content[0])
+        elif isinstance(content, dict):
+            content = content.get("text", str(content))
+        else:
+            content = str(content)
+        guidelines = content
     except Exception as e:
         guidelines = "Standard vitals check recommended. Monitor for any acute changes."
         
@@ -65,10 +72,17 @@ def safety_agent_node(state: AgentState):
     # Use Gemini to check for conflicts
     prompt = f"Patient {p_data.get('name')} takes the following medications: {p_data.get('meds')}. They have these symptoms: {p_data.get('symptoms')}. Are there any obvious dangerous drug interactions or contraindications? Respond with 'SAFE: <reason>' or 'FLAG: <reason>'. Be concise."
     
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+    llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest")
     try:
         response = llm.invoke(prompt)
-        safety_analysis = response.content
+        content = response.content
+        if isinstance(content, list) and len(content) > 0:
+            content = content[0].get("text", str(content)) if isinstance(content[0], dict) else str(content[0])
+        elif isinstance(content, dict):
+            content = content.get("text", str(content))
+        else:
+            content = str(content)
+        safety_analysis = content
     except Exception as e:
         safety_analysis = "SAFE: No major conflicts detected based on available data."
         

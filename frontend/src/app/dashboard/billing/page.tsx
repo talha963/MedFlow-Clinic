@@ -8,7 +8,7 @@ export default function BillingDashboard() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/billing/stats");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing/stats`);
       if (res.ok) {
         const data = await res.json();
         setStats(data);

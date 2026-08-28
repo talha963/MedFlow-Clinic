@@ -9,8 +9,12 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyDCgcN9KHLtJljAqGT0iyCwhRiBGLEarDE
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - medflow-network
 
@@ -35,6 +39,8 @@ services:
     depends_on:
       - mysql
       - neo4j
+    volumes:
+      - ./backend:/app
     networks:
       - medflow-network
 

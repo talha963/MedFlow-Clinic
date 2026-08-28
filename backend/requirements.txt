@@ -8,7 +8,7 @@ pinecone-client
 groq
 langgraph
 pydantic
-google-generativeai
+google-genai
 langchain-google-genai
 langchain-community
 langchain-pinecone

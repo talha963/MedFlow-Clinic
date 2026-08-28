@@ -6,7 +6,7 @@ import models
 from neo4j_db import neo4j_conn
 
 def handle_doctor_chat(user_message: str):
-    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest", temperature=0)
     
     # We ask the LLM to classify the intent and extract information.
     system_prompt = """

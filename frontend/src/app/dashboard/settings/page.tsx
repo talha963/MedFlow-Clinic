@@ -21,7 +21,7 @@ export default function SettingsPage() {
       if (user) {
         const email = user.email || "";
         try {
-          const res = await fetch(`http://localhost:8000/api/users/profile?email=${email}`);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile?email=${email}`);
           if (res.ok) {
             const data = await res.json();
             const nameParts = data.name.replace("Dr. ", "").split(" ");
