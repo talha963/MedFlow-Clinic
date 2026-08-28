@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MedFlow AI",
-  description: "Next-generation Clinical Decision Support",
+  title: "MedFlow AI — Clinical Intelligence Platform",
+  description: "Next-generation AI-powered Clinical Decision Support System",
 };
 
 export default function RootLayout({
@@ -12,12 +12,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased font-sans bg-background text-gray-900 min-h-screen">
+    <html lang="en" className="dark">
+      <body className="antialiased font-sans min-h-screen" style={{ background: 'var(--bg-deep)', color: 'var(--text-primary)' }}>
         {children}
       </body>
     </html>
   );
 }
-
-

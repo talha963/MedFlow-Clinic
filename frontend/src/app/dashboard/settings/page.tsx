@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Settings, User, Bell, Shield, Database, Loader2 } from "lucide-react";
+import { Settings, User, Bell, Shield, Database, Loader2, Zap, Globe } from "lucide-react";
 import { auth } from "@/lib/firebase";
 
 export default function SettingsPage() {
@@ -48,54 +48,79 @@ export default function SettingsPage() {
   const handleSave = () => {
     alert("Profile settings saved successfully!");
   };
+
+  const tabs = [
+    { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" /> },
+    { id: 'notifications', label: 'Notifications', icon: <Bell className="w-5 h-5" /> },
+    { id: 'security', label: 'Security', icon: <Shield className="w-5 h-5" /> },
+    { id: 'integrations', label: 'Integrations', icon: <Database className="w-5 h-5" /> },
+  ];
   
   return (
-    <div className="max-w-[1200px] mx-auto animate-in fade-in duration-500 pb-10">
-      <div className="bg-white dark:bg-slate-800 dark:border-slate-700 rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col md:flex-row min-h-[70vh]">
+    <div className="max-w-[1200px] mx-auto pb-10">
+      <div className="glass-card overflow-hidden flex flex-col md:flex-row min-h-[70vh] animate-fade-in-up">
         
-        {/* Settings Sidebar */}
-        <div className="w-full md:w-64 bg-slate-50 dark:bg-slate-900/50 border-r border-slate-100 dark:border-slate-700 p-6 flex flex-col gap-2">
-          <h2 className="text-xl font-black text-slate-800 dark:text-slate-100 mb-6 flex items-center gap-2">
-            <Settings className="w-6 h-6 text-blue-600" /> Settings
+        {/* ═══ Settings Sidebar ═══ */}
+        <div className="w-full md:w-64 p-6 flex flex-col gap-1.5" style={{ borderRight: '1px solid var(--border-glass)', background: 'rgba(10, 14, 26, 0.4)' }}>
+          <h2 className="text-xl font-black text-white mb-6 flex items-center gap-2">
+            <div className="p-1.5 rounded-lg" style={{ background: 'rgba(6,182,212,0.15)', border: '1px solid rgba(6,182,212,0.2)' }}>
+              <Settings className="w-5 h-5 text-cyan-400" />
+            </div>
+            Settings
           </h2>
           
-          <button onClick={() => setActiveTab('profile')} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'profile' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
-            <User className="w-5 h-5" /> Profile
-          </button>
-          
-          <button onClick={() => setActiveTab('notifications')} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'notifications' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
-            <Bell className="w-5 h-5" /> Notifications
-          </button>
-
-          <button onClick={() => setActiveTab('security')} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'security' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
-            <Shield className="w-5 h-5" /> Security
-          </button>
-          
-          <button onClick={() => setActiveTab('integrations')} className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'integrations' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700'}`}>
-            <Database className="w-5 h-5" /> Integrations
-          </button>
+          {tabs.map((tab) => (
+            <button 
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)} 
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all duration-300 ${
+                activeTab === tab.id 
+                  ? 'text-white' 
+                  : 'text-slate-500 hover:text-slate-300'
+              }`}
+              style={activeTab === tab.id ? {
+                background: 'linear-gradient(135deg, rgba(6,182,212,0.15), rgba(139,92,246,0.1))',
+                border: '1px solid rgba(6,182,212,0.2)',
+                boxShadow: '0 4px 20px rgba(6,182,212,0.08)',
+              } : { border: '1px solid transparent' }}
+            >
+              <span className={activeTab === tab.id ? 'text-cyan-400' : ''}>{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        {/* Settings Content */}
+        {/* ═══ Settings Content ═══ */}
         <div className="flex-1 p-8 md:p-12">
           {loading ? (
-            <div className="h-full flex flex-col items-center justify-center text-blue-600">
-              <Loader2 className="w-12 h-12 animate-spin mb-4" />
-              <p className="font-bold">Loading Settings...</p>
+            <div className="h-full flex flex-col items-center justify-center">
+              <Loader2 className="w-10 h-10 animate-spin text-cyan-400 mb-4" />
+              <p className="font-bold text-slate-500">Loading Settings...</p>
             </div>
           ) : activeTab === 'profile' && (
-            <div className="max-w-2xl animate-in slide-in-from-right-4 duration-300">
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">Profile Settings</h3>
+            <div className="max-w-2xl animate-slide-in-right">
+              <h3 className="text-2xl font-bold text-white mb-8">Profile Settings</h3>
               <div className="space-y-6">
+                {/* Avatar */}
                 <div className="flex items-center gap-6 mb-8">
-                  {profile.avatarUrl ? (
-                    <img src={profile.avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full border-4 border-white dark:border-slate-600 shadow-lg object-cover" />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-blue-100 dark:bg-slate-700 border-4 border-white dark:border-slate-600 shadow-lg flex items-center justify-center text-3xl font-black text-blue-600 dark:text-blue-400">
-                      {profile.firstName ? profile.firstName.charAt(0) : "D"}
+                  <div className="relative">
+                    {profile.avatarUrl ? (
+                      <img src={profile.avatarUrl} alt="Avatar" className="w-24 h-24 rounded-full object-cover" style={{ border: '3px solid rgba(6,182,212,0.3)', boxShadow: '0 0 25px rgba(6,182,212,0.15)' }} />
+                    ) : (
+                      <div className="w-24 h-24 rounded-full flex items-center justify-center text-3xl font-black" style={{ 
+                        background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(139,92,246,0.2))',
+                        border: '3px solid rgba(6,182,212,0.3)', 
+                        boxShadow: '0 0 25px rgba(6,182,212,0.15)',
+                        color: 'var(--accent-cyan)'
+                      }}>
+                        {profile.firstName ? profile.firstName.charAt(0) : "D"}
+                      </div>
+                    )}
+                    <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-400 flex items-center justify-center status-active" style={{ border: '3px solid var(--bg-surface)' }}>
+                      <Zap className="w-3 h-3 text-white" />
                     </div>
-                  )}
-                  <label className="cursor-pointer px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-lg transition-colors">
+                  </div>
+                  <label className="cursor-pointer px-4 py-2 rounded-xl font-bold text-sm transition-all duration-300 text-slate-400 hover:text-cyan-300" style={{ background: 'rgba(100,116,160,0.08)', border: '1px solid var(--border-glass)' }}>
                     Change Avatar
                     <input 
                       type="file" 
@@ -119,25 +144,26 @@ export default function SettingsPage() {
                   </label>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-6">
+                {/* Form Fields */}
+                <div className="grid grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-500">First Name</label>
-                    <input type="text" value={profile.firstName} onChange={e => setProfile({...profile, firstName: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">First Name</label>
+                    <input type="text" value={profile.firstName} onChange={e => setProfile({...profile, firstName: e.target.value})} className="w-full px-4 py-3 rounded-xl text-sm font-medium input-glow text-slate-200 placeholder-slate-500" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-500">Last Name</label>
-                    <input type="text" value={profile.lastName} onChange={e => setProfile({...profile, lastName: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20" />
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Last Name</label>
+                    <input type="text" value={profile.lastName} onChange={e => setProfile({...profile, lastName: e.target.value})} className="w-full px-4 py-3 rounded-xl text-sm font-medium input-glow text-slate-200 placeholder-slate-500" />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-500">Email Address</label>
-                  <input type="email" disabled value={profile.email} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-500 opacity-70 cursor-not-allowed" />
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Email Address</label>
+                  <input type="email" disabled value={profile.email} className="w-full px-4 py-3 rounded-xl text-sm font-medium text-slate-500 cursor-not-allowed opacity-60" style={{ background: 'rgba(100,116,160,0.05)', border: '1px solid var(--border-glass)' }} />
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-500">Specialty</label>
-                  <select value={profile.specialty} onChange={e => setProfile({...profile, specialty: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Specialty</label>
+                  <select value={profile.specialty} onChange={e => setProfile({...profile, specialty: e.target.value})} className="w-full px-4 py-3 rounded-xl text-sm font-medium input-glow text-slate-200" style={{ background: 'rgba(15,23,42,0.6)' }}>
                     <option value="General Practice">General Practice</option>
                     <option value="Cardiology">Cardiology</option>
                     <option value="Neurology">Neurology</option>
@@ -146,7 +172,7 @@ export default function SettingsPage() {
                   </select>
                 </div>
                 
-                <button onClick={handleSave} className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all mt-8">
+                <button onClick={handleSave} className="px-8 py-3 rounded-xl font-bold transition-all mt-6 text-white btn-glow" style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.8), rgba(139,92,246,0.6))' }}>
                   Save Changes
                 </button>
               </div>
@@ -154,67 +180,94 @@ export default function SettingsPage() {
           )}
           
           {activeTab === 'notifications' && (
-            <div className="max-w-2xl animate-in slide-in-from-right-4 duration-300">
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">Notification Preferences</h3>
+            <div className="max-w-2xl animate-slide-in-right">
+              <h3 className="text-2xl font-bold text-white mb-8">Notification Preferences</h3>
               <div className="space-y-4">
-                <label className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700">
-                  <div>
-                    <p className="font-bold text-slate-800 dark:text-slate-200">Email Alerts</p>
-                    <p className="text-sm text-slate-500">Receive daily summaries of patient activity.</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 accent-blue-600" />
-                </label>
-                <label className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700">
-                  <div>
-                    <p className="font-bold text-slate-800 dark:text-slate-200">Critical Clinical Flags</p>
-                    <p className="text-sm text-slate-500">Immediate push notifications for dangerous drug interactions.</p>
-                  </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 accent-blue-600" />
-                </label>
+                {[
+                  { title: "Email Alerts", desc: "Receive daily summaries of patient activity.", default: true },
+                  { title: "Critical Clinical Flags", desc: "Immediate push notifications for dangerous drug interactions.", default: true },
+                  { title: "Appointment Reminders", desc: "Get notified 15 minutes before each appointment.", default: false },
+                  { title: "Billing Notifications", desc: "Alerts when a patient pays their invoice via Safepay.", default: true },
+                ].map((item, idx) => (
+                  <label key={item.title} className={`flex items-center justify-between p-5 rounded-xl transition-all duration-300 cursor-pointer group animate-fade-in-up stagger-${idx + 1}`} style={{ background: 'rgba(10,14,26,0.4)', border: '1px solid var(--border-glass)' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(6,182,212,0.15)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(100,116,160,0.15)'; }}
+                  >
+                    <div>
+                      <p className="font-bold text-white text-sm">{item.title}</p>
+                      <p className="text-sm text-slate-500 mt-0.5">{item.desc}</p>
+                    </div>
+                    <input type="checkbox" defaultChecked={item.default} className="toggle-switch" />
+                  </label>
+                ))}
               </div>
             </div>
           )}
 
           {activeTab === 'security' && (
-            <div className="max-w-2xl animate-in slide-in-from-right-4 duration-300">
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">Security & Authentication</h3>
+            <div className="max-w-2xl animate-slide-in-right">
+              <h3 className="text-2xl font-bold text-white mb-8">Security & Authentication</h3>
               <div className="space-y-4">
-                <button className="w-full text-left p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                  <p className="font-bold text-slate-800 dark:text-slate-200">Change Password</p>
-                  <p className="text-sm text-slate-500">Update your Firebase authentication credentials.</p>
-                </button>
-                <button className="w-full text-left p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                  <p className="font-bold text-slate-800 dark:text-slate-200">Two-Factor Authentication (2FA)</p>
-                  <p className="text-sm text-slate-500">Currently disabled. Enable for HIPAA compliance.</p>
-                </button>
+                {[
+                  { title: "Change Password", desc: "Update your Firebase authentication credentials.", icon: <Shield className="w-5 h-5 text-cyan-400" /> },
+                  { title: "Two-Factor Authentication (2FA)", desc: "Currently disabled. Enable for HIPAA compliance.", icon: <Zap className="w-5 h-5 text-violet-400" /> },
+                  { title: "Active Sessions", desc: "View and manage active login sessions.", icon: <Globe className="w-5 h-5 text-emerald-400" /> },
+                ].map((item, idx) => (
+                  <button key={item.title} className={`w-full text-left p-5 rounded-xl transition-all duration-300 flex items-start gap-4 group animate-fade-in-up stagger-${idx + 1}`} style={{ background: 'rgba(10,14,26,0.4)', border: '1px solid var(--border-glass)' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(6,182,212,0.15)'; e.currentTarget.style.transform = 'translateX(4px)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(100,116,160,0.15)'; e.currentTarget.style.transform = 'translateX(0)'; }}
+                  >
+                    <div className="p-2 rounded-lg" style={{ background: 'rgba(100,116,160,0.08)' }}>
+                      {item.icon}
+                    </div>
+                    <div>
+                      <p className="font-bold text-white text-sm">{item.title}</p>
+                      <p className="text-sm text-slate-500 mt-0.5">{item.desc}</p>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           )}
 
           {activeTab === 'integrations' && (
-            <div className="max-w-2xl animate-in slide-in-from-right-4 duration-300">
-              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-6">System Integrations</h3>
+            <div className="max-w-2xl animate-slide-in-right">
+              <h3 className="text-2xl font-bold text-white mb-8">System Integrations</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-green-100 flex items-center justify-center font-bold text-green-700">N8N</div>
-                    <div>
-                      <p className="font-bold text-slate-800 dark:text-slate-200">n8n Automation</p>
-                      <p className="text-sm text-slate-500">Connected to webhook /appointment-approved</p>
+                {[
+                  { name: "n8n Automation", desc: "Connected to webhook /appointment-approved", badge: "N8N", color: "emerald", active: true },
+                  { name: "Neo4j Graph Database", desc: "Connected for Clinical Pathways", badge: "N4J", color: "cyan", active: true },
+                  { name: "Pinecone Vector DB", desc: "RAG Knowledge Base (medflow-rag-v2)", badge: "PNC", color: "violet", active: true },
+                  { name: "Safepay Payments", desc: "Processing billing invoices", badge: "SPY", color: "amber", active: true },
+                ].map((item, idx) => {
+                  const badgeColors: Record<string, { bg: string; border: string; text: string }> = {
+                    emerald: { bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.2)', text: 'text-emerald-400' },
+                    cyan: { bg: 'rgba(6,182,212,0.15)', border: 'rgba(6,182,212,0.2)', text: 'text-cyan-400' },
+                    violet: { bg: 'rgba(139,92,246,0.15)', border: 'rgba(139,92,246,0.2)', text: 'text-violet-400' },
+                    amber: { bg: 'rgba(245,158,11,0.15)', border: 'rgba(245,158,11,0.2)', text: 'text-amber-400' },
+                  };
+                  const c = badgeColors[item.color];
+                  return (
+                    <div key={item.name} className={`flex items-center justify-between p-5 rounded-xl transition-all duration-300 animate-fade-in-up stagger-${idx + 1}`} style={{ background: 'rgba(10,14,26,0.4)', border: '1px solid var(--border-glass)' }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(6,182,212,0.15)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(100,116,160,0.15)'; }}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-black text-xs ${c.text}`} style={{ background: c.bg, border: `1px solid ${c.border}` }}>
+                          {item.badge}
+                        </div>
+                        <div>
+                          <p className="font-bold text-white text-sm">{item.name}</p>
+                          <p className="text-sm text-slate-500 mt-0.5">{item.desc}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 status-active"></span>
+                        <span className="text-xs font-bold text-emerald-400">Active</span>
+                      </div>
                     </div>
-                  </div>
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Active</span>
-                </div>
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-blue-100 flex items-center justify-center font-bold text-blue-700">N4J</div>
-                    <div>
-                      <p className="font-bold text-slate-800 dark:text-slate-200">Neo4j Graph Database</p>
-                      <p className="text-sm text-slate-500">Connected for Clinical Pathways</p>
-                    </div>
-                  </div>
-                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">Active</span>
-                </div>
+                  );
+                })}
               </div>
             </div>
           )}
