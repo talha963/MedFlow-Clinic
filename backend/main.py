@@ -61,6 +61,13 @@ def get_patient(patient_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Patient not found")
     return patient
 
+@app.get("/api/patients", response_model=List[schemas.PatientResponse])
+def search_patients(search: str = "", db: Session = Depends(get_db)):
+    query = db.query(models.Patient)
+    if search:
+        query = query.filter(models.Patient.name.ilike(f"%{search}%"))
+    return query.limit(10).all()
+
 @app.post("/api/patients", response_model=schemas.PatientResponse)
 def create_patient(patient: schemas.PatientCreate, db: Session = Depends(get_db)):
     db_patient = models.Patient(**patient.dict())

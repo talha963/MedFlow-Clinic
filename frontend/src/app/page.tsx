@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Calendar, User, Phone, CheckCircle2, ArrowRight, ShieldCheck, Clock, Award, Activity, Heart, Brain, Shield, Star, ChevronRight, Microscope } from "lucide-react";
+import { Calendar, User, Phone, CheckCircle2, ArrowRight, ShieldCheck, Clock, Award, Activity, Heart, Brain, Shield, Star, ChevronRight, Microscope, Menu, X } from "lucide-react";
 import ChatWidget from "../components/ChatWidget";
 
 export default function PatientPortal() {
   const [formData, setFormData] = useState({ name: "", dob: "", phone: "", email: "", date: "", time: "", doctor_id: "", medicines: "", tests: "", symptoms: "" });
   const [submitted, setSubmitted] = useState(false);
   const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors`)
@@ -71,12 +72,31 @@ export default function PatientPortal() {
             <a href="#facilities" className="hover:text-blue-600 transition-colors">Facilities</a>
             <a href="/doctor/login" className="hover:text-blue-600 transition-colors">Doctor Portal</a>
           </div>
-          <div>
+          <div className="hidden md:block">
             <a href="#booking" className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-full transition-colors">
               Book Appointment
             </a>
           </div>
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-slate-600 hover:text-blue-600 focus:outline-none p-2 transition-transform duration-300">
+              {isMobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+            </button>
+          </div>
         </div>
+        
+        {/* Mobile Dropdown Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-slate-100 p-6 space-y-4 shadow-2xl absolute w-full left-0 animate-in slide-in-from-top-2">
+            <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 hover:text-blue-600 transition-colors">About Us</a>
+            <a href="#services" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 hover:text-blue-600 transition-colors">Our Services</a>
+            <a href="#facilities" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 hover:text-blue-600 transition-colors">Facilities</a>
+            <div className="pt-4 flex flex-col gap-3 border-t border-slate-100">
+              <a href="/doctor/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full font-bold text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 rounded-xl p-4 text-center transition-colors">Doctor Portal</a>
+              <a href="#booking" onClick={() => setIsMobileMenuOpen(false)} className="block w-full font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl p-4 text-center transition-colors">Book Appointment</a>
+            </div>
+          </div>
+        )}
       </nav>
 
       <main className="flex-1">
