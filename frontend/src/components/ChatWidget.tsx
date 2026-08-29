@@ -58,13 +58,13 @@ export default function ChatWidget() {
       {/* Toggle Button */}
       <button 
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 p-4 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 hover:scale-105 transition-all z-50 ${isOpen ? 'hidden' : 'block'}`}
+        className={`fixed bottom-6 right-6 p-4 bg-blue-600 text-white rounded-full shadow-2xl hover:bg-blue-700 hover:scale-105 transition-all z-[9999] ${isOpen ? 'hidden' : 'block'}`}
       >
         <MessageCircle className="w-7 h-7" />
       </button>
 
       {/* Chat Window */}
-      <div className={`fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden flex flex-col transition-all origin-bottom-right duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`} style={{ height: '500px', maxHeight: '80vh' }}>
+      <div className={`fixed bottom-6 right-6 w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 z-[9999] overflow-hidden flex flex-col transition-all origin-bottom-right duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`} style={{ height: '500px', maxHeight: '80vh' }}>
         
         {/* Header */}
         <div className="bg-blue-600 text-white p-4 flex justify-between items-center">

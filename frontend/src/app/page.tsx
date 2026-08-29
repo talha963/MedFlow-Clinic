@@ -112,7 +112,7 @@ export default function PatientPortal() {
                 </span>
                 Accepting New Patients
               </div>
-              <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tight leading-[1.1]">
+              <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.1]">
                 Next-Generation Healthcare, <br/>
                 <span className="text-blue-600">Powered by AI.</span>
               </h1>
@@ -123,7 +123,7 @@ export default function PatientPortal() {
                 <a href="#booking" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2">
                   Get Started <ArrowRight className="w-5 h-5" />
                 </a>
-                <a href="#about" className="px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-xl border border-slate-200 transition-all">
+                <a href="#about" className="px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 dark:text-slate-300 font-bold rounded-xl border border-slate-200 transition-all">
                   Learn More
                 </a>
               </div>
@@ -177,7 +177,7 @@ export default function PatientPortal() {
             {/* Intro headline */}
             <div className="text-center max-w-3xl mx-auto mb-20">
               <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 font-bold text-xs uppercase tracking-widest rounded-full mb-4">Who We Are</span>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 leading-tight">Reimagining Healthcare from the Ground Up</h2>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 mb-6 leading-tight">Reimagining Healthcare from the Ground Up</h2>
               <p className="text-lg text-slate-500 leading-relaxed">MedFlow Clinic was built on a single belief — that every patient deserves intelligent, compassionate, and frictionless care. We bridge the gap between cutting-edge AI and the irreplaceable human touch of our world-class medical team.</p>
             </div>
 
@@ -196,15 +196,15 @@ export default function PatientPortal() {
               </div>
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-3 flex items-center gap-2"><Heart className="w-6 h-6 text-red-500" /> Our Mission</h3>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2"><Heart className="w-6 h-6 text-red-500" /> Our Mission</h3>
                   <p className="text-slate-600 leading-relaxed">To deliver personalized, evidence-based medical care powered by AI intelligence — reducing wait times, eliminating prescription errors, and empowering patients with real-time health insights.</p>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-3 flex items-center gap-2"><Brain className="w-6 h-6 text-blue-500" /> Our Vision</h3>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2"><Brain className="w-6 h-6 text-blue-500" /> Our Vision</h3>
                   <p className="text-slate-600 leading-relaxed">A world where every patient — regardless of geography or background — has access to the same high-quality diagnostic accuracy and specialist-level care that was once only available to a privileged few.</p>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-3 flex items-center gap-2"><Shield className="w-6 h-6 text-emerald-500" /> Our Promise</h3>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2"><Shield className="w-6 h-6 text-emerald-500" /> Our Promise</h3>
                   <p className="text-slate-600 leading-relaxed">Every prescription is AI-validated. Every diagnosis is specialist-reviewed. Every interaction is private and protected. We hold ourselves to the highest clinical and ethical standards.</p>
                 </div>
               </div>
@@ -216,21 +216,21 @@ export default function PatientPortal() {
                 <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mb-5">
                   <Brain className="w-6 h-6 text-blue-600" />
                 </div>
-                <h4 className="text-xl font-black text-slate-900 mb-3">AI-Powered Diagnostics</h4>
+                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3">AI-Powered Diagnostics</h4>
                 <p className="text-slate-500 text-sm leading-relaxed">Our graph-based AI synthesises your complete medical history, flags drug interactions, and surfaces early warning signs — in seconds, not days.</p>
               </div>
               <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-5">
                   <ShieldCheck className="w-6 h-6 text-emerald-600" />
                 </div>
-                <h4 className="text-xl font-black text-slate-900 mb-3">Safe Prescription Engine</h4>
+                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3">Safe Prescription Engine</h4>
                 <p className="text-slate-500 text-sm leading-relaxed">Every medication is cross-checked against allergies, current treatments and clinical guidelines before a prescription is ever issued to you.</p>
               </div>
               <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mb-5">
                   <Star className="w-6 h-6 text-purple-600" />
                 </div>
-                <h4 className="text-xl font-black text-slate-900 mb-3">Seamless Patient Experience</h4>
+                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3">Seamless Patient Experience</h4>
                 <p className="text-slate-500 text-sm leading-relaxed">From booking to follow-up, our platform eliminates paperwork, automates notifications, and keeps you informed at every step of your care journey.</p>
               </div>
             </div>
@@ -241,8 +241,8 @@ export default function PatientPortal() {
         <div id="facilities" className="bg-white border-t border-slate-200 py-24">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <span className="inline-block px-4 py-1.5 bg-slate-100 text-slate-700 font-bold text-xs uppercase tracking-widest rounded-full mb-4">Our Facilities</span>
-              <h2 className="text-4xl font-black text-slate-900 mb-4">Explore Our World-Class Spaces</h2>
+              <span className="inline-block px-4 py-1.5 bg-slate-100 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-widest rounded-full mb-4">Our Facilities</span>
+              <h2 className="text-4xl font-black text-slate-900 dark:text-slate-100 mb-4">Explore Our World-Class Spaces</h2>
               <p className="text-lg text-slate-600">We combine the latest clinical advancements with cutting-edge artificial intelligence to deliver care that is truly tailored to you.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
@@ -296,11 +296,11 @@ export default function PatientPortal() {
         </div>
 
         {/* ── BOOKING FORM (at the bottom) ── */}
-        <div id="booking" className="py-24 bg-slate-50 border-t border-slate-200">
+        <div id="booking" className="py-24 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-14">
               <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 font-bold text-xs uppercase tracking-widest rounded-full mb-4">Book an Appointment</span>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 leading-tight">Your Health Cannot Wait.<br/>Neither Should You.</h2>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 mb-4 leading-tight">Your Health Cannot Wait.<br/>Neither Should You.</h2>
               <p className="text-slate-500 text-lg">Skip the queue. Use our intelligent scheduling system to instantly secure your slot with a top-rated specialist.</p>
             </div>
             <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden grid lg:grid-cols-5">
@@ -352,44 +352,44 @@ export default function PatientPortal() {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700">Full Name</label>
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Full Name</label>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                          <input required type="text" value={formData.name} onChange={(e)=>setFormData({...formData, name: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="John Doe" />
+                          <input required type="text" value={formData.name} onChange={(e)=>setFormData({...formData, name: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="John Doe" />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700">Phone Number</label>
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Phone Number</label>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                          <input required type="tel" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="(555) 000-0000" />
+                          <input required type="tel" value={formData.phone} onChange={(e)=>setFormData({...formData, phone: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="(555) 000-0000" />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700">Email Address <span className="text-blue-500">(Confirmation will be sent here)</span></label>
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Email Address <span className="text-blue-500">(Confirmation will be sent here)</span></label>
                         <div className="relative">
                           <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                          <input required type="email" value={formData.email} onChange={(e)=>setFormData({...formData, email: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="patient@example.com" />
+                          <input required type="email" value={formData.email} onChange={(e)=>setFormData({...formData, email: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="patient@example.com" />
                         </div>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700">Date of Birth</label>
-                      <input required type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Date of Birth</label>
+                      <input required type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700">Preferred Date</label>
-                        <input required type="date" value={formData.date} onChange={(e)=>setFormData({...formData, date: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Preferred Date</label>
+                        <input required type="date" value={formData.date} onChange={(e)=>setFormData({...formData, date: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
                       </div>
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700">Preferred Time</label>
-                        <input required type="time" value={formData.time} onChange={(e)=>setFormData({...formData, time: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Preferred Time</label>
+                        <input required type="time" value={formData.time} onChange={(e)=>setFormData({...formData, time: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700">Select Specialist</label>
-                      <select value={formData.doctor_id} onChange={(e)=>setFormData({...formData, doctor_id: e.target.value})} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                      <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Select Specialist</label>
+                      <select value={formData.doctor_id} onChange={(e)=>setFormData({...formData, doctor_id: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                         {availableDoctors.map(doc => (
                           <option key={doc.user_id} value={doc.user_id}>{doc.name}{doc.specialty ? ` (${doc.specialty})` : ""}</option>
                         ))}
@@ -400,16 +400,16 @@ export default function PatientPortal() {
                       <p className="text-xs text-slate-500 mb-4">Provide any current medications, past tests, or symptoms to help the doctor prepare for your visit.</p>
                       <div className="space-y-4">
                         <div className="space-y-2">
-                          <label className="text-sm font-bold text-slate-700">Symptoms</label>
-                          <textarea value={formData.symptoms} onChange={(e)=>setFormData({...formData, symptoms: e.target.value})} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Briefly describe your symptoms..."></textarea>
+                          <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Symptoms</label>
+                          <textarea value={formData.symptoms} onChange={(e)=>setFormData({...formData, symptoms: e.target.value})} rows={2} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Briefly describe your symptoms..."></textarea>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-bold text-slate-700">Current Medicines</label>
-                          <textarea value={formData.medicines} onChange={(e)=>setFormData({...formData, medicines: e.target.value})} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="List any medications you are currently taking..."></textarea>
+                          <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Current Medicines</label>
+                          <textarea value={formData.medicines} onChange={(e)=>setFormData({...formData, medicines: e.target.value})} rows={2} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="List any medications you are currently taking..."></textarea>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-sm font-bold text-slate-700">Previous Tests</label>
-                          <textarea value={formData.tests} onChange={(e)=>setFormData({...formData, tests: e.target.value})} rows={2} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Mention any recent lab work or tests..."></textarea>
+                          <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Previous Tests</label>
+                          <textarea value={formData.tests} onChange={(e)=>setFormData({...formData, tests: e.target.value})} rows={2} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Mention any recent lab work or tests..."></textarea>
                         </div>
                       </div>
                     </div>

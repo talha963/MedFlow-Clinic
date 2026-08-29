@@ -125,7 +125,7 @@ def update_appointment_status(appointment_id: int, status_update: schemas.Appoin
     if status_update.status == "Confirmed":
         patient = db.query(models.Patient).filter(models.Patient.patient_id == db_appointment.patient_id).first()
         if patient:
-            webhook_url = "http://n8n:5678/webhook/appointment-approved"
+            webhook_url = "http://host.docker.internal:5678/webhook/appointment-approved"
             payload = {
                 "patient_name": patient.name,
                 "patient_email": patient.email or "",
@@ -409,7 +409,7 @@ def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)
     try:
         patient = db.query(models.Patient).filter(models.Patient.patient_id == billing.patient_id).first()
         if patient and getattr(patient, "email", None):
-            webhook_url = "http://n8n:5678/webhook/billing-issued"
+            webhook_url = "http://host.docker.internal:5678/webhook/billing-issued"
             payload = {
                 "patient_name": patient.name,
                 "patient_email": patient.email,
@@ -423,6 +423,34 @@ def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)
         print(f"Failed to trigger billing webhook: {e}")
 
     return db_bill
+
+@app.post("/api/billing/{billing_id}/pay")
+def pay_bill(billing_id: int, db: Session = Depends(get_db)):
+    import requests
+    db_bill = db.query(models.BillingRecord).filter(models.BillingRecord.billing_id == billing_id).first()
+    if not db_bill:
+        raise HTTPException(status_code=404, detail="Bill not found")
+        
+    db_bill.status = "Paid"
+    db.commit()
+    db.refresh(db_bill)
+    
+    # Trigger n8n payment confirmation email webhook
+    try:
+        patient = db.query(models.Patient).filter(models.Patient.patient_id == db_bill.patient_id).first()
+        if patient and getattr(patient, "email", None):
+            webhook_url = "http://host.docker.internal:5678/webhook/billing-paid"
+            payload = {
+                "patient_name": patient.name,
+                "patient_email": patient.email,
+                "amount": db_bill.amount,
+                "billing_id": db_bill.billing_id
+            }
+            requests.post(webhook_url, json=payload, timeout=3)
+    except Exception as e:
+        print(f"Failed to trigger payment webhook: {e}")
+        
+    return {"message": "Payment verified", "status": "Paid"}
 
 @app.get("/api/billing/stats")
 def get_billing_stats(db: Session = Depends(get_db)):

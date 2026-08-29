@@ -82,6 +82,15 @@ export default function BillingDashboard() {
     setLoading(false);
   };
 
+  const handleVerifyPayment = async (billingId: number) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing/${billingId}/pay`, { method: "POST" });
+      if (res.ok) fetchStats();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => { fetchStats(); }, []);
 
   if (loading) {
@@ -204,9 +213,19 @@ export default function BillingDashboard() {
                       }}>{inv.status}</span>
                     </td>
                     <td className="px-8 py-4 text-right">
-                      <span className="flex items-center justify-end gap-1.5 text-xs font-bold" style={{ color: 'var(--badge-blue-text)' }}>
-                        <Mail className="w-3.5 h-3.5" /> Sent via n8n
-                      </span>
+                      {inv.status === 'Pending' ? (
+                        <button 
+                          onClick={() => handleVerifyPayment(inv.id)}
+                          className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors hover:opacity-80"
+                          style={{ background: 'var(--accent-blue)', color: 'white' }}
+                        >
+                          Verify Payment
+                        </button>
+                      ) : (
+                        <span className="flex items-center justify-end gap-1.5 text-xs font-bold" style={{ color: 'var(--badge-blue-text)' }}>
+                          <CheckCircle className="w-3.5 h-3.5" /> Receipt Sent
+                        </span>
+                      )}
                     </td>
                   </tr>
                 ))
