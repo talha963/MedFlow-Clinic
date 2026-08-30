@@ -108,10 +108,14 @@ export default function Dashboard() {
   const submitBilling = async () => {
     if (!patientId || !billingForm.amount) return alert("Missing required fields");
     setBillingSaving(true);
+    
+    // Find latest appointment ID
+    const latestApptId = timelineData && timelineData.length > 0 ? parseInt(timelineData[0].id) : parseInt(patientId);
+    
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patient_id: parseInt(patientId), appointment_id: parseInt(patientId), amount: parseFloat(billingForm.amount), icd10_codes: billingForm.icd10, cpt_codes: billingForm.cpt })
+        body: JSON.stringify({ patient_id: parseInt(patientId), appointment_id: latestApptId, amount: parseFloat(billingForm.amount), icd10_codes: billingForm.icd10, cpt_codes: billingForm.cpt })
       });
       if (res.ok) { alert("Bill generated successfully and sent!"); setShowBillingModal(false); setBillingForm({ amount: "", icd10: "", cpt: "" }); }
       else { alert("Failed to generate bill"); }
