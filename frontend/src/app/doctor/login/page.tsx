@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { Activity, Mail, Lock, Loader2, ArrowRight, ShieldCheck, Stethoscope, Sun, Moon } from "lucide-react";
+import { Activity, Mail, Lock, Loader2, ArrowRight, ShieldCheck, Stethoscope, Sun, Moon, Home } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 
 export default function LandingPage() {
@@ -111,12 +112,20 @@ export default function LandingPage() {
         
         {/* Theme Toggle Top Right */}
         {mounted && (
-          <button 
-            onClick={toggleTheme}
+          <>
+            <Link 
+              href="/"
+              className="absolute top-6 left-6 p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 z-50 shadow-sm flex items-center gap-2 font-bold text-sm group"
+            >
+              <Home className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> <span className="hidden sm:inline">Back to Home</span>
+            </Link>
+            <button 
+              onClick={toggleTheme}
             className="absolute top-6 right-6 p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 z-50 shadow-sm"
           >
             {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
+          </>
         )}
         
         <div className="w-full max-w-md relative z-10 bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800 transition-colors duration-300">

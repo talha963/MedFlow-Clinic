@@ -176,7 +176,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="absolute -bottom-10 -right-10 w-36 h-36 rounded-full" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.08), transparent 70%)' }}></div>
         </div>
         
-        <div className="p-8 pb-6 flex items-center gap-3 relative z-10">
+        <Link href="/" className="p-8 pb-6 flex items-center gap-3 relative z-10 hover:opacity-80 transition-opacity">
           <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg" style={{ animation: 'logo-pulse 3s ease-in-out infinite' }}>
             <Activity className="w-6 h-6" />
           </div>
@@ -184,7 +184,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <h1 className="text-xl font-black tracking-tight leading-none text-white">MedFlow AI</h1>
             <p className="text-[10px] font-bold tracking-[0.2em] text-blue-300/70 uppercase mt-1">Clinical Portal</p>
           </div>
-        </div>
+        </Link>
         
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto relative z-10">
           <div className="mb-5 px-4 text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--sidebar-text)' }}>Navigation</div>
@@ -306,10 +306,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Mobile Header (Search + Actions) */}
         <div className="md:hidden glass-panel p-4 flex flex-col gap-3 relative z-20" style={{ borderBottom: '1px solid var(--border-glass)' }}>
           <div className="flex justify-between items-center">
-            <div className="text-lg font-bold flex items-center gap-2">
+            <Link href="/" className="text-lg font-bold flex items-center gap-2 hover:opacity-80 transition-opacity">
               <Activity className="w-5 h-5" style={{ color: 'var(--accent-blue)' }} />
               <span className="font-black" style={{ color: 'var(--text-primary)' }}>MedFlow AI</span>
-            </div>
+            </Link>
             <div className="flex items-center gap-3">
               <button onClick={toggleTheme} className="theme-toggle" style={{ width: 32, height: 32, borderRadius: 8 }}>
                 {theme === 'light' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
