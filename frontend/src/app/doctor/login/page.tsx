@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { Activity, Mail, Lock, Loader2, ArrowRight, ShieldCheck, Stethoscope } from "lucide-react";
+import { Activity, Mail, Lock, Loader2, ArrowRight, ShieldCheck, Stethoscope, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -15,6 +16,12 @@ export default function LandingPage() {
   const [degree, setDegree] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -52,9 +59,9 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-50 font-sans selection:bg-blue-500 selection:text-white">
+    <div className="flex h-screen w-full bg-slate-50 dark:bg-slate-950 font-sans selection:bg-blue-500 selection:text-white transition-colors duration-300">
       {/* Left Side - Enhanced Visuals */}
-      <div className="hidden lg:flex w-7/12 relative overflow-hidden flex-col items-center justify-center bg-blue-900">
+      <div className="hidden lg:flex w-7/12 relative overflow-hidden flex-col items-center justify-center bg-blue-900 dark:bg-slate-900">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay opacity-40 hover:scale-105 transition-transform duration-[20s]"></div>
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-800/80 to-slate-900/90"></div>
         
@@ -99,18 +106,28 @@ export default function LandingPage() {
       </div>
 
       {/* Right Side - Glassmorphism Auth Form */}
-      <div className="w-full lg:w-5/12 flex items-center justify-center p-8 bg-slate-50 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 via-slate-50 to-slate-50 opacity-70"></div>
+      <div className="w-full lg:w-5/12 flex items-center justify-center p-8 bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 dark:from-blue-900/20 via-slate-50 dark:via-slate-950 to-slate-50 dark:to-slate-950 opacity-70 transition-colors duration-300"></div>
         
-        <div className="w-full max-w-md relative z-10 bg-white p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+        {/* Theme Toggle Top Right */}
+        {mounted && (
+          <button 
+            onClick={toggleTheme}
+            className="absolute top-6 right-6 p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 z-50 shadow-sm"
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+        )}
+        
+        <div className="w-full max-w-md relative z-10 bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800 transition-colors duration-300">
           <div className="text-center mb-10">
             <div className="mx-auto w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/30 mb-6 transform -rotate-3 hover:rotate-0 transition-transform">
               <Activity className="w-8 h-8 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-slate-800">
+            <h2 className="text-3xl font-bold text-slate-800 dark:text-white transition-colors duration-300">
               {isLogin ? "Welcome back" : "Create account"}
             </h2>
-            <p className="mt-3 text-slate-500 font-medium">
+            <p className="mt-3 text-slate-500 dark:text-slate-400 font-medium transition-colors duration-300">
               {isLogin ? "Enter your credentials to access the portal." : "Join MedFlow AI to streamline your practice."}
             </p>
           </div>
@@ -127,22 +144,22 @@ export default function LandingPage() {
             {!isLogin && (
               <>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
-                  <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="block w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium" placeholder="Dr. John Doe" />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 transition-colors duration-300">Full Name</label>
+                  <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="block w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium" placeholder="Dr. John Doe" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Degree (e.g. MBBS, MD)</label>
-                  <input type="text" required value={degree} onChange={(e) => setDegree(e.target.value)} className="block w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium" placeholder="MBBS, MS" />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 transition-colors duration-300">Degree (e.g. MBBS, MD)</label>
+                  <input type="text" required value={degree} onChange={(e) => setDegree(e.target.value)} className="block w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium" placeholder="MBBS, MS" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Specialty</label>
-                  <input type="text" required value={specialty} onChange={(e) => setSpecialty(e.target.value)} className="block w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium" placeholder="Cardiology" />
+                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 transition-colors duration-300">Specialty</label>
+                  <input type="text" required value={specialty} onChange={(e) => setSpecialty(e.target.value)} className="block w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium" placeholder="Cardiology" />
                 </div>
               </>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Email address</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 transition-colors duration-300">Email address</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -152,14 +169,14 @@ export default function LandingPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                  className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
                   placeholder="doctor@hospital.com"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Password</label>
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 transition-colors duration-300">Password</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
@@ -169,7 +186,7 @@ export default function LandingPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                  className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
                   placeholder="••••••••"
                 />
               </div>
@@ -190,11 +207,11 @@ export default function LandingPage() {
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-slate-500 font-medium">
+            <p className="text-slate-500 dark:text-slate-400 font-medium transition-colors duration-300">
               {isLogin ? "New to MedFlow?" : "Already a member?"}{' '}
               <button 
                 onClick={() => { setIsLogin(!isLogin); setError(""); }}
-                className="text-blue-600 font-bold hover:text-blue-800 transition-colors"
+                className="text-blue-600 dark:text-blue-400 font-bold hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
               >
                 {isLogin ? "Sign up now" : "Sign in here"}
               </button>

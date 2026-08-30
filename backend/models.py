@@ -38,6 +38,8 @@ class Appointment(Base):
     date = Column(String(50))
     time = Column(String(50))
     status = Column(String(50))
+    requested_as_any = Column(Integer, default=0) # SQLite/MySQL compatible boolean using Integer
+    rejected_by = Column(String(255), default="")
 
     # Relationships
     patient = relationship("Patient", back_populates="appointments")
@@ -89,6 +91,7 @@ class BillingRecord(Base):
     icd10_codes = Column(String(255), nullable=True) # e.g. "E03.9, J45.909"
     cpt_codes = Column(String(255), nullable=True) # e.g. "99214"
     stripe_payment_link = Column(String(500), nullable=True)
+    safepay_token = Column(String(500), nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
     # Relationships

@@ -64,7 +64,7 @@ export default function ChatWidget() {
       </button>
 
       {/* Chat Window */}
-      <div className={`fixed bottom-6 right-6 w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 z-[9999] overflow-hidden flex flex-col transition-all origin-bottom-right duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`} style={{ height: '500px', maxHeight: '80vh' }}>
+      <div className={`fixed bottom-6 right-6 w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[9999] overflow-hidden flex flex-col transition-all origin-bottom-right duration-300 ${isOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0 pointer-events-none'}`} style={{ height: '500px', maxHeight: '80vh' }}>
         
         {/* Header */}
         <div className="bg-blue-600 text-white p-4 flex justify-between items-center">
@@ -78,23 +78,23 @@ export default function ChatWidget() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-blue-100 text-blue-600' : 'bg-teal-100 text-teal-600'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300' : 'bg-teal-100 dark:bg-teal-900 text-teal-600 dark:text-teal-300'}`}>
                 {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
-              <div className={`p-3 rounded-2xl max-w-[75%] text-sm ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white border border-slate-200 text-slate-700 rounded-tl-none shadow-sm'}`}>
+              <div className={`p-3 rounded-2xl max-w-[75%] text-sm transition-colors duration-300 ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-tl-none shadow-sm'}`}>
                 {msg.content}
               </div>
             </div>
           ))}
           {isLoading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900 text-teal-600 dark:text-teal-300 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4" />
               </div>
-              <div className="p-3 bg-white border border-slate-200 rounded-2xl rounded-tl-none text-slate-500 shadow-sm flex items-center gap-2 text-sm">
+              <div className="p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none text-slate-500 dark:text-slate-400 shadow-sm flex items-center gap-2 text-sm transition-colors duration-300">
                 <Loader2 className="w-4 h-4 animate-spin" /> Thinking...
               </div>
             </div>
@@ -103,7 +103,7 @@ export default function ChatWidget() {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-white border-t border-slate-100">
+        <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 transition-colors duration-300">
           <div className="flex gap-2 relative">
             <input 
               type="text" 
@@ -111,7 +111,7 @@ export default function ChatWidget() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Ask a medical question..." 
-              className="flex-1 bg-slate-100 text-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors duration-300"
             />
             <button 
               onClick={handleSend}

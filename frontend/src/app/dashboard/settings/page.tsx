@@ -75,7 +75,24 @@ export default function SettingsPage() {
     return () => unsubscribe();
   }, []);
 
-  const handleSave = () => { alert("Profile settings saved successfully!"); };
+  const handleSave = async () => {
+    try {
+      const name = `Dr. ${profile.firstName} ${profile.lastName}`.trim();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: profile.email, name, specialty: profile.specialty })
+      });
+      if (res.ok) {
+        alert("Profile settings saved successfully!");
+      } else {
+        alert("Failed to save profile settings.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("An error occurred while saving.");
+    }
+  };
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" /> },

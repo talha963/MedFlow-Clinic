@@ -8,15 +8,29 @@ from database import engine, get_db
 
 from fastapi.middleware.cors import CORSMiddleware
 
-# Create the database tables
-models.Base.metadata.create_all(bind=engine)
+import time
+from sqlalchemy.exc import OperationalError
+
+# Create the database tables with retry logic for robust startup
+max_retries = 30
+for i in range(max_retries):
+    try:
+        models.Base.metadata.create_all(bind=engine)
+        print("Database connected and tables created.")
+        break
+    except OperationalError as e:
+        if i == max_retries - 1:
+            print("Failed to connect to the database after max retries.")
+            raise
+        print(f"Database connection failed, retrying in 2 seconds... ({i+1}/{max_retries})")
+        time.sleep(2)
 
 app = FastAPI(title="MedFlow AI Backend API")
 
 # Add CORS Middleware to allow requests from the Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,7 +79,11 @@ def get_patient(patient_id: int, db: Session = Depends(get_db)):
 def search_patients(search: str = "", db: Session = Depends(get_db)):
     query = db.query(models.Patient)
     if search:
-        query = query.filter(models.Patient.name.ilike(f"%{search}%"))
+        # Security: sanitize wildcards and require minimum length
+        clean_search = search.replace("%", "").replace("_", "").strip()
+        if len(clean_search) < 2:
+            return []
+        query = query.filter(models.Patient.name.ilike(f"%{clean_search}%"))
     return query.limit(10).all()
 
 @app.post("/api/patients", response_model=schemas.PatientResponse)
@@ -92,7 +110,8 @@ def create_appointment(appointment: schemas.AppointmentCreate, db: Session = Dep
         doctor_id=appointment.doctor_id,
         date=appointment.date,
         time=appointment.time,
-        status=appointment.status
+        status=appointment.status,
+        requested_as_any=1 if appointment.requested_as_any else 0
     )
     db.add(db_appointment)
     db.commit()
@@ -117,7 +136,34 @@ def update_appointment_status(appointment_id: int, status_update: schemas.Appoin
     if not db_appointment:
         raise HTTPException(status_code=404, detail="Appointment not found")
     
-    db_appointment.status = status_update.status
+    if status_update.status == "Rejected":
+        if getattr(db_appointment, "requested_as_any", 0) == 1:
+            # Add current doctor to rejected list
+            current_rejected = getattr(db_appointment, "rejected_by", "")
+            if not current_rejected:
+                current_rejected = str(db_appointment.doctor_id)
+            else:
+                current_rejected += f",{db_appointment.doctor_id}"
+            db_appointment.rejected_by = current_rejected
+            
+            import random
+            rejected_ids = [int(x) for x in current_rejected.split(",") if x.strip()]
+            available_doctors = db.query(models.User).filter(
+                models.User.role == "Doctor", 
+                models.User.user_id.notin_(rejected_ids)
+            ).all()
+            
+            if available_doctors:
+                new_doc = random.choice(available_doctors)
+                db_appointment.doctor_id = new_doc.user_id
+                db_appointment.status = "Pending"
+            else:
+                db_appointment.status = "Cancelled"
+        else:
+            db_appointment.status = "Cancelled"
+    else:
+        db_appointment.status = status_update.status
+
     db.commit()
     db.refresh(db_appointment)
 
@@ -202,12 +248,36 @@ def get_appointment_record(appointment_id: int, db: Session = Depends(get_db)):
 from langchain_core.messages import HumanMessage
 from agents.graph import medflow_agent_app
 
+from pydantic import BaseModel
+
+class ProfileUpdate(BaseModel):
+    email: str
+    name: str
+    specialty: str
+
 @app.get("/api/users/profile")
 def get_user_profile(email: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.credentials == email).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        name = email.split('@')[0].capitalize()
+        name = f"Dr. {name}"
+        user = models.User(name=name, role="Doctor", credentials=email, specialty="General Practice", degree="MD")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
     return {"name": user.name, "role": user.role, "specialty": user.specialty, "user_id": user.user_id}
+
+@app.post("/api/users/profile")
+def update_user_profile(profile: ProfileUpdate, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.credentials == profile.email).first()
+    if not user:
+        user = models.User(name=profile.name, role="Doctor", credentials=profile.email, specialty=profile.specialty, degree="MD")
+        db.add(user)
+    else:
+        user.name = profile.name
+        user.specialty = profile.specialty
+    db.commit()
+    return {"status": "success"}
 
 @app.get("/api/patients/{patient_id}/timeline")
 def get_patient_timeline(patient_id: int, db: Session = Depends(get_db)):
@@ -215,7 +285,10 @@ def get_patient_timeline(patient_id: int, db: Session = Depends(get_db)):
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found")
         
-    appointments = db.query(models.Appointment).filter(models.Appointment.patient_id == patient_id).order_by(models.Appointment.date.desc()).all()
+    appointments = db.query(models.Appointment).filter(
+        models.Appointment.patient_id == patient_id,
+        models.Appointment.status == "Confirmed"
+    ).order_by(models.Appointment.date.desc()).all()
     
     timeline = []
     for appt in appointments:
@@ -366,6 +439,7 @@ def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)
 
     safepay_public = os.environ.get("SAFEPAY_PUBLIC_KEY")
     checkout_url = ""
+    safepay_token = ""
 
     # Generate Real Safepay Tracker
     if safepay_public:
@@ -384,6 +458,7 @@ def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)
                 data = res.json()
                 token = data.get("data", {}).get("token")
                 if token:
+                    safepay_token = token
                     checkout_url = f"https://sandbox.api.getsafepay.com/checkout/pay?env=sandbox&beacon={token}&source=custom"
         except Exception as e:
             print("Safepay API error:", e)
@@ -399,7 +474,8 @@ def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)
         status="Pending",
         icd10_codes=billing.icd10_codes,
         cpt_codes=billing.cpt_codes,
-        stripe_payment_link=checkout_url # Now storing the real Safepay Tracker link
+        stripe_payment_link=checkout_url,
+        safepay_token=safepay_token
     )
     db.add(db_bill)
     db.commit()
@@ -424,13 +500,57 @@ def create_billing(billing: schemas.BillingCreate, db: Session = Depends(get_db)
 
     return db_bill
 
-@app.post("/api/billing/{billing_id}/pay")
-def pay_bill(billing_id: int, db: Session = Depends(get_db)):
-    import requests
-    db_bill = db.query(models.BillingRecord).filter(models.BillingRecord.billing_id == billing_id).first()
+# --- SAFEPAY WEBHOOK: Called by Safepay when patient completes payment ---
+from fastapi import Request
+
+@app.post("/api/webhooks/safepay")
+async def safepay_webhook(request: Request, db: Session = Depends(get_db)):
+    import hmac, hashlib, os, requests
+    
+    body = await request.body()
+    
+    # Verify webhook signature using SAFEPAY_SECRET_KEY (HMAC-SHA256)
+    safepay_secret = os.environ.get("SAFEPAY_SECRET_KEY", "")
+    if safepay_secret:
+        signature = request.headers.get("x-sfpy-signature", "")
+        expected_sig = hmac.new(safepay_secret.encode(), body, hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(signature, expected_sig):
+            raise HTTPException(status_code=403, detail="Invalid webhook signature")
+    
+    import json
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+    
+    # Extract the tracker token from the webhook payload
+    event_type = payload.get("type", "")
+    tracker_token = payload.get("data", {}).get("tracker", {}).get("token", "")
+    
+    if not tracker_token:
+        # Fallback: try to find token in alternative payload structures
+        tracker_token = payload.get("data", {}).get("token", "")
+    
+    if event_type not in ["payment.successful", "payment:successful", "payment_completed"]:
+        # Not a successful payment event, acknowledge but do nothing
+        return {"status": "ignored", "reason": f"Event type '{event_type}' is not a payment success"}
+    
+    if not tracker_token:
+        return {"status": "ignored", "reason": "No tracker token found in payload"}
+    
+    # Find the billing record by safepay_token
+    db_bill = db.query(models.BillingRecord).filter(models.BillingRecord.safepay_token == tracker_token).first()
     if not db_bill:
-        raise HTTPException(status_code=404, detail="Bill not found")
-        
+        # Fallback: try matching by checkout URL containing the token
+        db_bill = db.query(models.BillingRecord).filter(models.BillingRecord.stripe_payment_link.contains(tracker_token)).first()
+    
+    if not db_bill:
+        return {"status": "ignored", "reason": "No matching billing record found"}
+    
+    if db_bill.status == "Paid":
+        return {"status": "already_paid"}
+    
+    # Mark as paid
     db_bill.status = "Paid"
     db.commit()
     db.refresh(db_bill)
@@ -440,17 +560,17 @@ def pay_bill(billing_id: int, db: Session = Depends(get_db)):
         patient = db.query(models.Patient).filter(models.Patient.patient_id == db_bill.patient_id).first()
         if patient and getattr(patient, "email", None):
             webhook_url = "http://host.docker.internal:5678/webhook/billing-paid"
-            payload = {
+            n8n_payload = {
                 "patient_name": patient.name,
                 "patient_email": patient.email,
                 "amount": db_bill.amount,
                 "billing_id": db_bill.billing_id
             }
-            requests.post(webhook_url, json=payload, timeout=3)
+            requests.post(webhook_url, json=n8n_payload, timeout=3)
     except Exception as e:
         print(f"Failed to trigger payment webhook: {e}")
         
-    return {"message": "Payment verified", "status": "Paid"}
+    return {"status": "success", "billing_id": db_bill.billing_id}
 
 @app.get("/api/billing/stats")
 def get_billing_stats(db: Session = Depends(get_db)):

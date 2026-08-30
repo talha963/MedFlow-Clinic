@@ -55,6 +55,7 @@ class AppointmentBase(BaseModel):
     date: str
     time: str
     status: str
+    requested_as_any: Optional[bool] = False
 
 class AppointmentCreate(AppointmentBase):
     medical_record: Optional[MedicalRecordBase] = None

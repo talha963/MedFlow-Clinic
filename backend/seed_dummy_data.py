@@ -4,14 +4,15 @@ import models
 def seed_data():
     db = SessionLocal()
     
-    # 1. Create a dummy doctor (if doesn't exist)
-    doctor_email = "test@doctor.com"
-    doctor = db.query(models.User).filter(models.User.credentials == doctor_email).first()
+    # We no longer hard-code doctors here. Only Firebase-registered doctors (auto-synced) will exist.
+    # To keep the dummy script working for patients/appointments, we will grab the FIRST available doctor,
+    # or create a temporary "System" doctor if none exist yet.
+    doctor = db.query(models.User).filter(models.User.role == "Doctor").first()
     if not doctor:
-        doctor = models.User(name="Dr. Test User", role="Doctor", credentials=doctor_email, specialty="General", degree="MBBS")
-        db.add(doctor)
-        db.commit()
-        db.refresh(doctor)
+        print("ERROR: Cannot seed dummy data because no Firebase doctors exist in the database.")
+        print("Please log into the Doctor Dashboard first to auto-sync a real account.")
+        db.close()
+        return
         
     doc_id = doctor.user_id
         

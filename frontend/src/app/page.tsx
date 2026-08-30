@@ -1,13 +1,20 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Calendar, User, Phone, CheckCircle2, ArrowRight, ShieldCheck, Clock, Award, Activity, Heart, Brain, Shield, Star, ChevronRight, Microscope, Menu, X } from "lucide-react";
+import { Calendar, User, Phone, CheckCircle2, ArrowRight, ShieldCheck, Clock, Award, Activity, Heart, Brain, Shield, Star, ChevronRight, Microscope, Menu, X, Moon, Sun } from "lucide-react";
 import ChatWidget from "../components/ChatWidget";
+import { useTheme } from "@/components/ThemeProvider";
 
 export default function PatientPortal() {
-  const [formData, setFormData] = useState({ name: "", dob: "", phone: "", email: "", date: "", time: "", doctor_id: "", medicines: "", tests: "", symptoms: "" });
+  const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const [formData, setFormData] = useState({ name: "", dob: "", phone: "", email: "", date: "", time: "", doctor_id: "any", medicines: "", tests: "", symptoms: "" });
   const [submitted, setSubmitted] = useState(false);
   const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/doctors`)
@@ -23,6 +30,26 @@ export default function PatientPortal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    let finalDoctorId = parseInt(formData.doctor_id);
+    const requestedAsAny = formData.doctor_id === "any";
+    
+    // Handle "Any Available Specialist" by assigning to a random available doctor
+    if (requestedAsAny) {
+      if (availableDoctors.length > 0) {
+        const randomDoc = availableDoctors[Math.floor(Math.random() * availableDoctors.length)];
+        finalDoctorId = randomDoc.user_id;
+      } else {
+        alert("No specialists are currently available to take appointments. Please try again later.");
+        return;
+      }
+    }
+
+    if (isNaN(finalDoctorId)) {
+      alert("Please select a valid specialist.");
+      return;
+    }
+
     const patientRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/patients`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -39,46 +66,65 @@ export default function PatientPortal() {
       tests: formData.tests,
       symptoms: formData.symptoms
     } : null;
+
     await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         patient_id: newPatientId,
-        doctor_id: parseInt(formData.doctor_id),
+        doctor_id: finalDoctorId,
         date: formData.date,
         time: formData.time,
         status: "Pending",
-        medical_record: medical_record
+        medical_record: medical_record,
+        requested_as_any: requestedAsAny
       })
     });
     setSubmitted(true);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-blue-500 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-blue-500 selection:text-white flex flex-col transition-colors duration-300">
 
       {/* Navigation */}
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <nav className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-blue-600 rounded flex items-center justify-center">
               <Activity className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-black text-slate-800 tracking-tight">MedFlow<span className="text-blue-500">Clinic</span></span>
+            <span className="text-xl font-black text-slate-800 dark:text-white tracking-tight transition-colors duration-300">MedFlow<span className="text-blue-500">Clinic</span></span>
           </div>
-          <div className="hidden md:flex gap-8 font-bold text-slate-600 text-sm">
-            <a href="#about" className="hover:text-blue-600 transition-colors">About Us</a>
-            <a href="#services" className="hover:text-blue-600 transition-colors">Our Services</a>
-            <a href="#facilities" className="hover:text-blue-600 transition-colors">Facilities</a>
-            <a href="/doctor/login" className="hover:text-blue-600 transition-colors">Doctor Portal</a>
+          <div className="hidden md:flex gap-8 font-bold text-slate-600 dark:text-slate-300 text-sm transition-colors duration-300">
+            <a href="#about" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About Us</a>
+            <a href="#services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Our Services</a>
+            <a href="#facilities" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Facilities</a>
+            <a href="/doctor/login" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Doctor Portal</a>
           </div>
-          <div className="hidden md:block">
-            <a href="#booking" className="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-full transition-colors">
+          <div className="hidden md:flex items-center gap-4">
+            {/* Theme Toggle */}
+            {mounted && (
+              <button 
+                onClick={toggleTheme}
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            )}
+            <a href="#booking" className="px-5 py-2 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white text-sm font-bold rounded-full transition-colors duration-300">
               Book Appointment
             </a>
           </div>
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          {/* Mobile menu button and theme toggle */}
+          <div className="md:hidden flex items-center gap-2">
+            {mounted && (
+              <button 
+                onClick={toggleTheme}
+                className="p-2 rounded-xl text-slate-600 dark:text-slate-300 transition-all duration-300"
+              >
+                {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+              </button>
+            )}
             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-slate-600 hover:text-blue-600 focus:outline-none p-2 transition-transform duration-300">
               {isMobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
             </button>
@@ -87,13 +133,13 @@ export default function PatientPortal() {
         
         {/* Mobile Dropdown Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-slate-100 p-6 space-y-4 shadow-2xl absolute w-full left-0 animate-in slide-in-from-top-2">
-            <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 hover:text-blue-600 transition-colors">About Us</a>
-            <a href="#services" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 hover:text-blue-600 transition-colors">Our Services</a>
-            <a href="#facilities" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 hover:text-blue-600 transition-colors">Facilities</a>
-            <div className="pt-4 flex flex-col gap-3 border-t border-slate-100">
-              <a href="/doctor/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full font-bold text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 rounded-xl p-4 text-center transition-colors">Doctor Portal</a>
-              <a href="#booking" onClick={() => setIsMobileMenuOpen(false)} className="block w-full font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl p-4 text-center transition-colors">Book Appointment</a>
+          <div className="md:hidden bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 p-6 space-y-4 shadow-2xl absolute w-full left-0 animate-in slide-in-from-top-2 transition-colors duration-300">
+            <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">About Us</a>
+            <a href="#services" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Our Services</a>
+            <a href="#facilities" onClick={() => setIsMobileMenuOpen(false)} className="block font-bold text-lg text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Facilities</a>
+            <div className="pt-4 flex flex-col gap-3 border-t border-slate-100 dark:border-slate-800">
+              <a href="/doctor/login" onClick={() => setIsMobileMenuOpen(false)} className="block w-full font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-xl p-4 text-center transition-colors">Doctor Portal</a>
+              <a href="#booking" onClick={() => setIsMobileMenuOpen(false)} className="block w-full font-bold text-white bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 rounded-xl p-4 text-center transition-colors">Book Appointment</a>
             </div>
           </div>
         )}
@@ -112,34 +158,34 @@ export default function PatientPortal() {
                 </span>
                 Accepting New Patients
               </div>
-              <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.1]">
+              <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.1] transition-colors duration-300">
                 Next-Generation Healthcare, <br/>
-                <span className="text-blue-600">Powered by AI.</span>
+                <span className="text-blue-600 dark:text-blue-400 transition-colors duration-300">Powered by AI.</span>
               </h1>
-              <p className="text-lg text-slate-500 leading-relaxed max-w-lg">
+              <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg transition-colors duration-300">
                 Experience medical care where human expertise meets artificial intelligence. We ensure faster diagnoses, safer prescriptions, and zero waiting room time.
               </p>
               <div className="flex gap-4">
-                <a href="#booking" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2">
+                <a href="#booking" className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 dark:shadow-blue-900/50 transition-all flex items-center gap-2">
                   Get Started <ArrowRight className="w-5 h-5" />
                 </a>
-                <a href="#about" className="px-8 py-4 bg-white hover:bg-slate-50 text-slate-700 dark:text-slate-300 font-bold rounded-xl border border-slate-200 transition-all">
+                <a href="#about" className="px-8 py-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-all">
                   Learn More
                 </a>
               </div>
             </div>
             <div className="hidden lg:block relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-blue-100 to-teal-100 rounded-3xl transform rotate-3 scale-105 opacity-50 filter blur-xl"></div>
+              <div className="absolute -inset-4 bg-gradient-to-r from-blue-100 to-teal-100 dark:from-blue-900 dark:to-teal-900 rounded-3xl transform rotate-3 scale-105 opacity-50 filter blur-xl transition-colors duration-300"></div>
               <img
                 src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=800&h=1000&auto=format&fit=crop"
                 alt="Doctor Consultation"
-                className="relative rounded-3xl shadow-2xl border border-white object-cover h-[600px] w-full max-w-md mx-auto"
+                className="relative rounded-3xl shadow-2xl border border-white dark:border-slate-800 object-cover h-[600px] w-full max-w-md mx-auto transition-colors duration-300"
               />
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl flex items-center gap-4 border border-slate-100">
-                <div className="p-3 bg-emerald-100 text-emerald-600 rounded-full"><Award className="w-8 h-8" /></div>
+              <div className="absolute -bottom-6 -left-6 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl flex items-center gap-4 border border-slate-100 dark:border-slate-700 transition-colors duration-300">
+                <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full transition-colors duration-300"><Award className="w-8 h-8" /></div>
                 <div>
-                  <p className="text-sm font-bold text-slate-500 uppercase">Top Rated</p>
-                  <p className="text-xl font-black text-slate-800">#1 Clinic 2026</p>
+                  <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase transition-colors duration-300">Top Rated</p>
+                  <p className="text-xl font-black text-slate-800 dark:text-white transition-colors duration-300">#1 Clinic 2026</p>
                 </div>
               </div>
             </div>
@@ -147,7 +193,7 @@ export default function PatientPortal() {
         </div>
 
         {/* ── STATS ── */}
-        <div className="bg-white border-y border-slate-200">
+        <div className="bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800 transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x divide-slate-100">
               <div className="text-center px-4">
@@ -171,14 +217,14 @@ export default function PatientPortal() {
         </div>
 
         {/* ── ABOUT / MISSION ── */}
-        <div id="about" className="py-24 bg-slate-50">
+        <div id="about" className="py-24 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             {/* Intro headline */}
             <div className="text-center max-w-3xl mx-auto mb-20">
-              <span className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 font-bold text-xs uppercase tracking-widest rounded-full mb-4">Who We Are</span>
-              <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 mb-6 leading-tight">Reimagining Healthcare from the Ground Up</h2>
-              <p className="text-lg text-slate-500 leading-relaxed">MedFlow Clinic was built on a single belief — that every patient deserves intelligent, compassionate, and frictionless care. We bridge the gap between cutting-edge AI and the irreplaceable human touch of our world-class medical team.</p>
+              <span className="inline-block px-4 py-1.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold text-xs uppercase tracking-widest rounded-full mb-4 transition-colors duration-300">Who We Are</span>
+              <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 mb-6 leading-tight transition-colors duration-300">Reimagining Healthcare from the Ground Up</h2>
+              <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed transition-colors duration-300">MedFlow Clinic was built on a single belief — that every patient deserves intelligent, compassionate, and frictionless care. We bridge the gap between cutting-edge AI and the irreplaceable human touch of our world-class medical team.</p>
             </div>
 
             {/* Mission / Vision two-column */}
@@ -196,81 +242,81 @@ export default function PatientPortal() {
               </div>
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2"><Heart className="w-6 h-6 text-red-500" /> Our Mission</h3>
-                  <p className="text-slate-600 leading-relaxed">To deliver personalized, evidence-based medical care powered by AI intelligence — reducing wait times, eliminating prescription errors, and empowering patients with real-time health insights.</p>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2 transition-colors duration-300"><Heart className="w-6 h-6 text-red-500" /> Our Mission</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed transition-colors duration-300">To deliver personalized, evidence-based medical care powered by AI intelligence — reducing wait times, eliminating prescription errors, and empowering patients with real-time health insights.</p>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2"><Brain className="w-6 h-6 text-blue-500" /> Our Vision</h3>
-                  <p className="text-slate-600 leading-relaxed">A world where every patient — regardless of geography or background — has access to the same high-quality diagnostic accuracy and specialist-level care that was once only available to a privileged few.</p>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2 transition-colors duration-300"><Brain className="w-6 h-6 text-blue-500" /> Our Vision</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed transition-colors duration-300">A world where every patient — regardless of geography or background — has access to the same high-quality diagnostic accuracy and specialist-level care that was once only available to a privileged few.</p>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2"><Shield className="w-6 h-6 text-emerald-500" /> Our Promise</h3>
-                  <p className="text-slate-600 leading-relaxed">Every prescription is AI-validated. Every diagnosis is specialist-reviewed. Every interaction is private and protected. We hold ourselves to the highest clinical and ethical standards.</p>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2 transition-colors duration-300"><Shield className="w-6 h-6 text-emerald-500" /> Our Promise</h3>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed transition-colors duration-300">Every prescription is AI-validated. Every diagnosis is specialist-reviewed. Every interaction is private and protected. We hold ourselves to the highest clinical and ethical standards.</p>
                 </div>
               </div>
             </div>
 
             {/* Core Values cards */}
             <div id="services" className="grid md:grid-cols-3 gap-8">
-              <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mb-5">
-                  <Brain className="w-6 h-6 text-blue-600" />
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-5 transition-colors duration-300">
+                  <Brain className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3">AI-Powered Diagnostics</h4>
-                <p className="text-slate-500 text-sm leading-relaxed">Our graph-based AI synthesises your complete medical history, flags drug interactions, and surfaces early warning signs — in seconds, not days.</p>
+                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3 transition-colors duration-300">AI-Powered Diagnostics</h4>
+                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed transition-colors duration-300">Our graph-based AI synthesises your complete medical history, flags drug interactions, and surfaces early warning signs — in seconds, not days.</p>
               </div>
-              <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mb-5">
-                  <ShieldCheck className="w-6 h-6 text-emerald-600" />
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center mb-5 transition-colors duration-300">
+                  <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
                 </div>
-                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3">Safe Prescription Engine</h4>
-                <p className="text-slate-500 text-sm leading-relaxed">Every medication is cross-checked against allergies, current treatments and clinical guidelines before a prescription is ever issued to you.</p>
+                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3 transition-colors duration-300">Safe Prescription Engine</h4>
+                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed transition-colors duration-300">Every medication is cross-checked against allergies, current treatments and clinical guidelines before a prescription is ever issued to you.</p>
               </div>
-              <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mb-5">
-                  <Star className="w-6 h-6 text-purple-600" />
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mb-5 transition-colors duration-300">
+                  <Star className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
-                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3">Seamless Patient Experience</h4>
-                <p className="text-slate-500 text-sm leading-relaxed">From booking to follow-up, our platform eliminates paperwork, automates notifications, and keeps you informed at every step of your care journey.</p>
+                <h4 className="text-xl font-black text-slate-900 dark:text-slate-100 mb-3 transition-colors duration-300">Seamless Patient Experience</h4>
+                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed transition-colors duration-300">From booking to follow-up, our platform eliminates paperwork, automates notifications, and keeps you informed at every step of your care journey.</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* ── FACILITIES ── */}
-        <div id="facilities" className="bg-white border-t border-slate-200 py-24">
+        <div id="facilities" className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-24 transition-colors duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <span className="inline-block px-4 py-1.5 bg-slate-100 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-widest rounded-full mb-4">Our Facilities</span>
-              <h2 className="text-4xl font-black text-slate-900 dark:text-slate-100 mb-4">Explore Our World-Class Spaces</h2>
-              <p className="text-lg text-slate-600">We combine the latest clinical advancements with cutting-edge artificial intelligence to deliver care that is truly tailored to you.</p>
+              <span className="inline-block px-4 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-widest rounded-full mb-4 transition-colors duration-300">Our Facilities</span>
+              <h2 className="text-4xl font-black text-slate-900 dark:text-slate-100 mb-4 transition-colors duration-300">Explore Our World-Class Spaces</h2>
+              <p className="text-lg text-slate-600 dark:text-slate-400 transition-colors duration-300">We combine the latest clinical advancements with cutting-edge artificial intelligence to deliver care that is truly tailored to you.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="bg-slate-50 rounded-3xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-lg transition-shadow group">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300 group">
                 <div className="overflow-hidden h-52">
                   <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=600&auto=format&fit=crop" alt="Modern Clinic Lab" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-slate-800 mb-2">State-of-the-Art Labs</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">Our diagnostic labs feature the most advanced medical technology available — ensuring precise, rapid, and accurate test results every time.</p>
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 transition-colors duration-300">State-of-the-Art Labs</h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed transition-colors duration-300">Our diagnostic labs feature the most advanced medical technology available — ensuring precise, rapid, and accurate test results every time.</p>
                 </div>
               </div>
-              <div className="bg-slate-50 rounded-3xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-lg transition-shadow group">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300 group">
                 <div className="overflow-hidden h-52">
                   <img src="https://images.unsplash.com/photo-1638202993928-7267aad84c31?q=80&w=600&auto=format&fit=crop" alt="Doctor consulting patient" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-slate-800 mb-2">Compassionate Consultation Rooms</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">Designed for comfort and privacy — our AI handles the paperwork, freeing our doctors to focus entirely on listening to you.</p>
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 transition-colors duration-300">Compassionate Consultation Rooms</h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed transition-colors duration-300">Designed for comfort and privacy — our AI handles the paperwork, freeing our doctors to focus entirely on listening to you.</p>
                 </div>
               </div>
-              <div className="bg-slate-50 rounded-3xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-lg transition-shadow group">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-300 group">
                 <div className="overflow-hidden h-52">
                   <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?q=80&w=600&auto=format&fit=crop" alt="Medical data analysis" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-slate-800 mb-2">Data-Driven Precision Care</h3>
-                  <p className="text-slate-600 text-sm leading-relaxed">By mapping your complete health history in a knowledge graph, we proactively flag potential issues before they become serious problems.</p>
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2 transition-colors duration-300">Data-Driven Precision Care</h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed transition-colors duration-300">By mapping your complete health history in a knowledge graph, we proactively flag potential issues before they become serious problems.</p>
                 </div>
               </div>
             </div>
@@ -303,7 +349,7 @@ export default function PatientPortal() {
               <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 mb-4 leading-tight">Your Health Cannot Wait.<br/>Neither Should You.</h2>
               <p className="text-slate-500 text-lg">Skip the queue. Use our intelligent scheduling system to instantly secure your slot with a top-rated specialist.</p>
             </div>
-            <div className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden grid lg:grid-cols-5">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden grid lg:grid-cols-5 transition-colors duration-300">
               {/* Info Side */}
               <div className="lg:col-span-2 bg-gradient-to-br from-blue-900 to-blue-800 text-white p-12 flex flex-col justify-between relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-8 opacity-10"><Calendar className="w-48 h-48" /></div>
@@ -338,15 +384,15 @@ export default function PatientPortal() {
                 </div>
               </div>
               {/* Form Side */}
-              <div className="lg:col-span-3 p-12 bg-white">
+              <div className="lg:col-span-3 p-12 bg-white dark:bg-slate-900 transition-colors duration-300">
                 {submitted ? (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-6 animate-in zoom-in duration-500">
                     <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center">
                       <CheckCircle2 className="w-12 h-12 text-emerald-600" />
                     </div>
-                    <h3 className="text-3xl font-black text-slate-800">Request Received!</h3>
-                    <p className="text-lg text-slate-600 max-w-md">Your appointment request has been submitted. We will contact you shortly to confirm.</p>
-                    <button onClick={() => setSubmitted(false)} className="px-6 py-2 text-blue-600 font-bold hover:bg-blue-50 rounded-lg transition-colors">Book Another</button>
+                    <h3 className="text-3xl font-black text-slate-800 dark:text-slate-100 transition-colors duration-300">Request Received!</h3>
+                    <p className="text-lg text-slate-600 dark:text-slate-400 max-w-md transition-colors duration-300">Your appointment request has been submitted. We will contact you shortly to confirm.</p>
+                    <button onClick={() => setSubmitted(false)} className="px-6 py-2 text-blue-600 dark:text-blue-400 font-bold hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors duration-300">Book Another</button>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
@@ -390,14 +436,15 @@ export default function PatientPortal() {
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Select Specialist</label>
                       <select value={formData.doctor_id} onChange={(e)=>setFormData({...formData, doctor_id: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                        <option value="any">Any Available Specialist</option>
                         {availableDoctors.map(doc => (
                           <option key={doc.user_id} value={doc.user_id}>{doc.name}{doc.specialty ? ` (${doc.specialty})` : ""}</option>
                         ))}
                       </select>
                     </div>
-                    <div className="pt-4 border-t border-slate-200 mt-6">
-                      <h4 className="text-md font-bold text-slate-800 mb-2">Medical History (Optional)</h4>
-                      <p className="text-xs text-slate-500 mb-4">Provide any current medications, past tests, or symptoms to help the doctor prepare for your visit.</p>
+                    <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-6 transition-colors duration-300">
+                      <h4 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2 transition-colors duration-300">Medical History (Optional)</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 transition-colors duration-300">Provide any current medications, past tests, or symptoms to help the doctor prepare for your visit.</p>
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Symptoms</label>

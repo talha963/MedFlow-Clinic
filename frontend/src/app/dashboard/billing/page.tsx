@@ -82,16 +82,13 @@ export default function BillingDashboard() {
     setLoading(false);
   };
 
-  const handleVerifyPayment = async (billingId: number) => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing/${billingId}/pay`, { method: "POST" });
-      if (res.ok) fetchStats();
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   useEffect(() => { fetchStats(); }, []);
+
+  // Auto-refresh every 30 seconds to pick up Safepay webhook payment confirmations
+  useEffect(() => {
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return (
@@ -214,13 +211,9 @@ export default function BillingDashboard() {
                     </td>
                     <td className="px-8 py-4 text-right">
                       {inv.status === 'Pending' ? (
-                        <button 
-                          onClick={() => handleVerifyPayment(inv.id)}
-                          className="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors hover:opacity-80"
-                          style={{ background: 'var(--accent-blue)', color: 'white' }}
-                        >
-                          Verify Payment
-                        </button>
+                        <span className="flex items-center justify-end gap-1.5 text-xs font-bold" style={{ color: 'var(--badge-amber-text)' }}>
+                          <Clock className="w-3.5 h-3.5" /> Awaiting Payment
+                        </span>
                       ) : (
                         <span className="flex items-center justify-end gap-1.5 text-xs font-bold" style={{ color: 'var(--badge-blue-text)' }}>
                           <CheckCircle className="w-3.5 h-3.5" /> Receipt Sent

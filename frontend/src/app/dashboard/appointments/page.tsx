@@ -83,7 +83,14 @@ export default function AppointmentsPage() {
   const handleStatusUpdate = async (id: number, status: string) => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/${id}/status`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
-      setAppointments(prev => prev.map(a => a.appointment_id === id ? { ...a, status } : a));
+      if (auth.currentUser?.email) {
+        const profileRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile?email=${auth.currentUser.email}`);
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments?doctor_id=${profileData.user_id}`);
+          if (res.ok) setAppointments(await res.json());
+        }
+      }
       if (status === "Confirmed") fetchRecord(id);
     } catch (err) { console.error("Failed to update status", err); }
   };
@@ -140,7 +147,7 @@ export default function AppointmentsPage() {
               </tr>
             </thead>
             <tbody>
-              {appointments.map((apt, idx) => (
+              {appointments.map((apt: any, idx: number) => (
                 <tr key={apt.appointment_id} className={`table-row-glow animate-fade-in-up stagger-${Math.min(idx+1,5)}`} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                   <td className="p-4">
                     <span className="font-bold text-sm px-3 py-1.5 rounded-lg" style={{ color: 'var(--badge-blue-text)', background: 'var(--badge-blue-bg)', border: `1px solid var(--badge-blue-border)` }}>{apt.date}</span>
@@ -150,9 +157,9 @@ export default function AppointmentsPage() {
                   <td className="p-4 text-sm flex items-center gap-2" style={{ color: 'var(--text-muted)' }}><Clock className="w-4 h-4" />{apt.time}</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${apt.status === 'Confirmed' ? 'status-active' : ''}`} style={{
-                      color: apt.status === 'Confirmed' ? 'var(--badge-emerald-text)' : apt.status === 'Pending' ? 'var(--badge-amber-text)' : 'var(--text-muted)',
-                      background: apt.status === 'Confirmed' ? 'var(--badge-emerald-bg)' : apt.status === 'Pending' ? 'var(--badge-amber-bg)' : 'var(--bg-empty)',
-                      border: `1px solid ${apt.status === 'Confirmed' ? 'var(--badge-emerald-border)' : apt.status === 'Pending' ? 'var(--badge-amber-border)' : 'var(--border-subtle)'}`,
+                      color: apt.status === 'Confirmed' ? 'var(--badge-emerald-text)' : apt.status === 'Pending' ? 'var(--badge-amber-text)' : apt.status === 'Cancelled' ? 'var(--accent-rose)' : 'var(--text-muted)',
+                      background: apt.status === 'Confirmed' ? 'var(--badge-emerald-bg)' : apt.status === 'Pending' ? 'var(--badge-amber-bg)' : apt.status === 'Cancelled' ? 'rgba(244,63,94,0.08)' : 'var(--bg-empty)',
+                      border: `1px solid ${apt.status === 'Confirmed' ? 'var(--badge-emerald-border)' : apt.status === 'Pending' ? 'var(--badge-amber-border)' : apt.status === 'Cancelled' ? 'rgba(244,63,94,0.15)' : 'var(--border-subtle)'}`,
                     }}>{apt.status}</span>
                   </td>
                   <td className="p-4 text-right">
