@@ -421,21 +421,21 @@ export default function PatientPortal() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Date of Birth</label>
-                      <input required type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                      <input required type="date" value={formData.dob} onChange={(e)=>setFormData({...formData, dob: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:[color-scheme:dark]" />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Preferred Date</label>
-                        <input required type="date" value={formData.date} onChange={(e)=>setFormData({...formData, date: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                        <input required type="date" value={formData.date} onChange={(e)=>setFormData({...formData, date: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:[color-scheme:dark]" />
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Preferred Time</label>
-                        <input required type="time" value={formData.time} onChange={(e)=>setFormData({...formData, time: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                        <input required type="time" value={formData.time} onChange={(e)=>setFormData({...formData, time: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:[color-scheme:dark]" />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Select Specialist</label>
-                      <select value={formData.doctor_id} onChange={(e)=>setFormData({...formData, doctor_id: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                      <select value={formData.doctor_id} onChange={(e)=>setFormData({...formData, doctor_id: e.target.value})} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors dark:[color-scheme:dark]">
                         <option value="any">Any Available Specialist</option>
                         {availableDoctors.map(doc => (
                           <option key={doc.user_id} value={doc.user_id}>{doc.name}{doc.specialty ? ` (${doc.specialty})` : ""}</option>

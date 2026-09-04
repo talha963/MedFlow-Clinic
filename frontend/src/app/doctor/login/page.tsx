@@ -107,28 +107,33 @@ export default function LandingPage() {
       </div>
 
       {/* Right Side - Glassmorphism Auth Form */}
-      <div className="w-full lg:w-5/12 flex items-center justify-center p-8 bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 dark:from-blue-900/20 via-slate-50 dark:via-slate-950 to-slate-50 dark:to-slate-950 opacity-70 transition-colors duration-300"></div>
+      <div className="w-full lg:w-5/12 flex flex-col p-8 bg-slate-50 dark:bg-slate-950 relative transition-colors duration-300 h-screen overflow-y-auto">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 dark:from-blue-900/20 via-slate-50 dark:via-slate-950 to-slate-50 dark:to-slate-950 opacity-70 transition-colors duration-300 min-h-full"></div>
         
-        {/* Theme Toggle Top Right */}
-        {mounted && (
-          <>
-            <Link 
-              href="/"
-              className="absolute top-6 left-6 p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 z-50 shadow-sm flex items-center gap-2 font-bold text-sm group"
-            >
-              <Home className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> <span className="hidden sm:inline">Back to Home</span>
-            </Link>
-            <button 
-              onClick={toggleTheme}
-            className="absolute top-6 right-6 p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 z-50 shadow-sm"
-          >
-            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
-          </>
-        )}
+        {/* Header containing the buttons */}
+        <div className="w-full flex justify-between items-center relative z-20 mb-8 shrink-0">
+          {mounted ? (
+            <>
+              <Link 
+                href="/"
+                className="p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 shadow-sm flex items-center gap-2 font-bold text-sm group"
+              >
+                <Home className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> <span className="hidden sm:inline">Back to Home</span>
+              </Link>
+              <button 
+                onClick={toggleTheme}
+                className="p-3 rounded-xl bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 shadow-sm"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+            </>
+          ) : (
+            <div className="h-12 w-full"></div>
+          )}
+        </div>
         
-        <div className="w-full max-w-md relative z-10 bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800 transition-colors duration-300">
+        <div className="flex-1 flex items-center justify-center relative z-10 w-full pb-8">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 p-10 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:border-slate-800 transition-colors duration-300">
           <div className="text-center mb-10">
             <div className="mx-auto w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-600/30 mb-6 transform -rotate-3 hover:rotate-0 transition-transform">
               <Activity className="w-8 h-8 text-white" />
@@ -226,6 +231,7 @@ export default function LandingPage() {
               </button>
             </p>
           </div>
+        </div>
         </div>
       </div>
     </div>

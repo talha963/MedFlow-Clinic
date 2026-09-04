@@ -367,7 +367,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Page Content (Added pb-20 to clear bottom nav) */}
         <main className="flex-1 overflow-y-auto relative z-[1] p-4 md:p-8 pb-24 md:pb-8">
-          <div className="max-w-[1600px] mx-auto animate-fade-in-up">{children}</div>
+          <div className="max-w-[1600px] mx-auto">{children}</div>
         </main>
 
         {/* Mobile Bottom Navigation */}
